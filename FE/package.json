@@ -12,7 +12,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.1.0",
     "axios": "^1.13.2",
+    "react-native-vector-icons": "^10.3.0",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4",
     "vue-toastification": "^2.0.0-rc.5"
