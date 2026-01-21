@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import axios from '../../config/axios';
+
 
 export default {
     name: 'Login',
