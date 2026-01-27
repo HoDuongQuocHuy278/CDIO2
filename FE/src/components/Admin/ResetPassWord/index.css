@@ -7,23 +7,23 @@ body {
     padding: 0;
 }
 
-.login-page {
+.reset-pass {
     min-height: 100vh;
     background: #f0f2f5;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     padding: 20px;
 }
 
-.login-container {
+.reset-container {
     width: 100%;
-    max-width: 440px;
+    max-width: 460px;
     text-align: center;
 }
 
-/* --- LOGO SECTION --- */
+/* --- LOGO --- */
 .logo {
     margin-bottom: 32px;
 }
@@ -38,8 +38,8 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 30px;
-    box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2);
     color: #fff;
+    box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2);
 }
 
 .logo h2 {
@@ -55,13 +55,16 @@ body {
     margin: 0;
 }
 
-/* --- CARD SECTION --- */
-.login-card {
+/* --- CARD --- */
+.reset-card {
+    position: relative;
     background: #ffffff;
     padding: 40px 32px;
     border-radius: 20px;
     box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
     text-align: left;
+    justify-content: center;
+    margin-bottom: 8px;
 }
 
 .text-title {
@@ -80,8 +83,8 @@ body {
     margin-bottom: 28px;
 }
 
-/* --- FORM ELEMENTS --- */
-form label {
+/* --- INPUTS --- */
+label {
     display: block;
     margin-bottom: 8px;
     color: #374151;
@@ -107,7 +110,6 @@ form label {
     transition: all 0.2s ease;
 }
 
-/* Hiệu ứng Focus */
 .input-box input:focus {
     background: #fff;
     border-color: #0d6efd;
@@ -115,7 +117,6 @@ form label {
 }
 
 /* --- ICONS --- */
-/* Icon bên trái (Envelope, Lock) */
 .input-box.has-icon input {
     padding-left: 48px;
 }
@@ -131,13 +132,11 @@ form label {
     transition: color 0.2s;
 }
 
-/* Khi focus input thì icon đổi màu */
 .input-box input:focus+i,
 .input-box:focus-within>i {
     color: #0d6efd;
 }
 
-/* Icon mắt bên phải */
 .input-box.password input {
     padding-right: 48px;
 }
@@ -160,46 +159,27 @@ form label {
     color: #4b5563;
 }
 
-/* --- OPTIONS & BUTTON --- */
-.options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* --- MESSAGE BOX --- */
+.lable-text {
     margin: 10px 0 24px;
-    font-size: 14px;
-}
-
-.options label {
+    background: #eff6ff;
+    padding: 14px;
+    border-radius: 10px;
+    border-left: 4px solid #0d6efd;
     display: flex;
-    align-items: center;
-    gap: 8px;
+    gap: 10px;
+    align-items: start;
+}
+
+.lable-text p {
     margin: 0;
-    cursor: pointer;
+    font-size: 13px;
     color: #4b5563;
-    font-weight: 500;
+    line-height: 1.5;
 }
 
-.options input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #0d6efd;
-    margin: 0;
-    cursor: pointer;
-}
-
-.options a {
-    color: #0d6efd;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.2s;
-}
-
-.options a:hover {
-    color: #0043a8;
-    text-decoration: underline;
-}
-
-.btn-login {
+/* --- BUTTON --- */
+.btn-reset {
     width: 100%;
     height: 50px;
     background: linear-gradient(to right, #0d6efd, #0b5ed7);
@@ -213,12 +193,38 @@ form label {
     box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
 }
 
-.btn-login:hover {
+.btn-reset:hover {
     background: linear-gradient(to right, #0b5ed7, #0a58ca);
     transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(13, 110, 253, 0.4);
 }
 
-.btn-login:active {
+.btn-reset:active {
     transform: translateY(0);
+}
+
+.btn-back-top {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #9ca3af;
+    font-size: 18px;
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.btn-back-top:hover {
+    background-color: #f3f4f6;
+    color: #1f2937;
+    transform: translateX(-2px);
 }
