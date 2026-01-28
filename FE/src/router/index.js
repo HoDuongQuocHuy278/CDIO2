@@ -70,6 +70,14 @@ const routes = [
             layout: "AdminLayout",
         },
     },
+
+    {
+        path: "/admin/products",
+        component: () => import("../components/Admin/Product/index.vue"),
+        meta: {
+            layout: "AdminLayout",
+        },
+    },
 ];
 
 const router = createRouter({
