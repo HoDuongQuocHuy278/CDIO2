@@ -13,7 +13,7 @@ class AdminController extends Controller
     public function loginAdmin(Request $request)
     {
         $check = Auth::guard('admin')->attempt([
-            'email' => $request->email,
+            'so_dien_thoai' => $request->so_dien_thoai,
             'password' => $request->password
         ]);
         if($check){
@@ -21,7 +21,7 @@ class AdminController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Login successful',
-                'token' => $admin->createToken('admin')->plainTextToken
+                'token' => $admin->createToken('token_admin')->plainTextToken
             ]);
         } else {
             return response()->json([
@@ -30,4 +30,21 @@ class AdminController extends Controller
             ]);
         }
     }
+
+    public function checkTokenAdmin(Request $request)
+    {
+        $user = Auth::guard('sanctum')->user();
+        if ($user && $user instanceof \App\Models\Admin) {
+            return response()->json([
+                'status' => true,
+                'ho_ten'    => $user->ho_ten,
+            ]);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bạn cần đăng nhập hệ thống!',
+            ]);
+        }
+    }
+
 }

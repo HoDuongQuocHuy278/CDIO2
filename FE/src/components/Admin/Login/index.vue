@@ -16,12 +16,12 @@
                 <form>
                     <div class="input-box has-icon">
                         <i class="fa-regular fa-envelope"></i>
-                        <input type="text" placeholder="Enter your email or username" />
+                        <input v-model="user.so_dien_thoai" type="text" placeholder="Enter your email or so dien thoai" />
                     </div>
 
                     <div class="input-box password has-icon">
                         <i class="fa-solid fa-lock"></i>
-                        <input :type="showPassword ? 'text' : 'password'" placeholder="Enter your password" />
+                        <input v-model="user.password" :type="showPassword ? 'text' : 'password'" placeholder="Enter your password" />
                         <span @click="showPassword = !showPassword">
                             <i :class="showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
                         </span>
@@ -36,7 +36,7 @@
                         <a href="#">Forgot Password?</a>
                     </div>
 
-                    <button type="button" class="btn-login">
+                    <button v-on:click="DangNhap()" type="button" class="btn-login">
                         Sign In
                     </button>
                 </form>
@@ -46,14 +46,42 @@
 </template>
 
 <script>
-
+import { createToaster } from "@meforma/vue-toaster";
+const toaster = createToaster({ position: "top-right" });
 import './index.css'
+import baseRequestAdmin from "@/core/baseRequestAdmin";
 
 export default {
     data() {
         return {
-            showPassword: false
+            user: {
+                so_dien_thoai: '',
+                password: ''
+            },
+            showPassword: false,
         }
+    },
+    methods: {
+        DangNhap() {
+            baseRequestAdmin.post('admin/login', this.user)
+                .then((res) => {
+                    if (res.data.status) {
+                        toaster.success(res.data.message)
+                        this.user = {};
+                        localStorage.setItem('token_admin',res.data.token);
+                        this.$router.push('/admin/dashboard');
+                    } else {
+                        toaster.error(res.data.message);
+                    }
+                })
+                .catch((err) => {
+                    const listErr = err.response.data.errors;
+                    Object.values(listErr).forEach((error) => {
+                            toaster.error(error[0]);
+                    });
+                });
+        }
+        
     }
 }
 </script>

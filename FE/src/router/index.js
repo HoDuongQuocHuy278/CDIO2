@@ -4,7 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
     {
-        path: '/admin/login',
+        path: '/',
         component: () => import('../components/Admin/Login/index.vue'),
     },
 
@@ -74,6 +74,14 @@ const routes = [
     {
         path: "/admin/products",
         component: () => import("../components/Admin/Product/index.vue"),
+        meta: {
+            layout: "AdminLayout",
+        },
+    },
+
+    {
+        path: "/admin/invoices",
+        component: () => import("../components/Admin/Invoices/index.vue"),
         meta: {
             layout: "AdminLayout",
         },
