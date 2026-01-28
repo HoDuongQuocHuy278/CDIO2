@@ -1,0 +1,340 @@
+.product-page {
+  padding: 24px;
+  background: #f8fafc;
+}
+
+/* HEADER */
+.product-page .page-header h2 {
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.product-page .page-header p {
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.product-page .stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.product-page .stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.product-page .stat-card h3 {
+  margin: 6px 0 0;
+  font-size: 24px;
+}
+
+.product-page .stat-card.success h3 { color: #16a34a; }
+.product-page .stat-card.warning h3 { color: #ca8a04; }
+.product-page .stat-card.danger h3 { color: #dc2626; }
+
+.product-page .filter-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.product-page select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.product-page .btn-add {
+  background: #2563eb;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.product-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.product-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg,#fb7185,#f97316);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge.danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.product-card h4 {
+  margin: 12px 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.product-card .category {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.product-card .price {
+  margin-top: 8px;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.product-card .price span {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.product-card .stock {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin: 10px 0 6px;
+  color: #374151;
+}
+
+.progress {
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.progress-bar.green {
+  background: #22c55e;
+}
+
+.progress-bar.red {
+  background: #ef4444;
+}
+
+.card-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.card-actions button {
+  flex: 1;
+  height: 40px;
+  border-radius: 10px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.card-actions .btn-edit {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.card-actions .btn-delete {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* ================= MODAL BASE ================= */
+.modal-custom {
+  border-radius: 20px;
+  border: none;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+  animation: modalSlideUp 0.3s ease;
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ================= MODAL HEADER ================= */
+.modal-header.gradient {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: #fff;
+  padding: 20px 24px;
+  border-bottom: none;
+}
+
+.modal-header.gradient h5 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Close button */
+.modal-header .btn-close {
+  filter: invert(1);
+  opacity: 0.8;
+}
+
+.modal-header .btn-close:hover {
+  opacity: 1;
+}
+
+/* ================= MODAL BODY ================= */
+.modal-body {
+  padding: 24px;
+  background: #ffffff;
+}
+
+/* Input + Select */
+.modal-body input,
+.modal-body select {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  background: #f9fafb;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+/* Focus */
+.modal-body input:focus,
+.modal-body select:focus {
+  outline: none;
+  background: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+}
+
+/* Placeholder */
+.modal-body input::placeholder {
+  color: #9ca3af;
+}
+
+/* ================= MODAL FOOTER ================= */
+.modal-footer {
+  padding: 16px 24px;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Buttons common */
+.modal-footer button {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Cancel */
+.modal-footer button:not(.btn-primary):not(.btn-danger) {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.modal-footer button:not(.btn-primary):not(.btn-danger):hover {
+  background: #d1d5db;
+}
+
+/* Primary */
+.modal-footer .btn-primary {
+  background: #2563eb;
+  color: white;
+}
+
+.modal-footer .btn-primary:hover {
+  background: #1e40af;
+  transform: translateY(-1px);
+}
+
+/* Danger */
+.modal-footer .btn-danger {
+  background: #ef4444;
+  color: white;
+}
+
+.modal-footer .btn-danger:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* ================= DELETE MODAL ================= */
+.delete-icon {
+  font-size: 48px;
+  color: #ef4444;
+  margin-bottom: 12px;
+}
+
+.modal-body.text-center {
+  text-align: center;
+}
+
+.modal-body.text-center h4 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.modal-body.text-center p {
+  color: #6b7280;
+  font-size: 14px;
+}
