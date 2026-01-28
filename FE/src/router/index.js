@@ -62,6 +62,14 @@ const routes = [
             layout: "AdminLayout",
         },
     },
+
+    {
+        path: "/admin/devices",
+        component: () => import("../components/Admin/Devices/index.vue"),
+        meta: {
+            layout: "AdminLayout",
+        },
+    },
 ];
 
 const router = createRouter({
