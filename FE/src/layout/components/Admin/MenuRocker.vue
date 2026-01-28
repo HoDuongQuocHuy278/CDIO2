@@ -54,6 +54,22 @@
                 <i class='bx bxs-file-doc'></i>
                 <span>Hóa đơn</span>
             </router-link>
+
+            <router-link to="/admin/revenue" class="menu-item">
+                <i class='bx bx-dumbbell'></i>
+                <span>Doanh thu</span>
+            </router-link>
+
+            <router-link to="/admin/income" class="menu-item">
+                <i class='bx bxs-shopping-bag'></i>
+                <span>Thu nhập</span>
+                
+            </router-link>
+
+            <router-link to="/admin/schedule" class="menu-item">
+                <i class='bx bxs-file-doc'></i>
+                <span>Lịch làm</span>
+            </router-link>
         </nav>
 
         <div class="sidebar-footer">

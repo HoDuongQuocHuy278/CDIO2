@@ -45,7 +45,7 @@
                                     <div class="profile-info">
                                         <span class="full-name">{{ member.ho_ten }}</span>
                                         <div class="d-flex align-items-center gap-2">
-                                            <span class="id-tag">ID: #{{ member.id }}</span>
+                                            
                                             <span class="mini-status"
                                                 :class="member.trang_thai === 1 ? 'active' : 'expired'">
                                                 {{ member.trang_thai === 1 ? 'Active' : 'Expired' }}
