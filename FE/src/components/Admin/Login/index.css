@@ -1,0 +1,224 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.login-page {
+    min-height: 100vh;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+    padding: 20px;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 440px;
+    text-align: center;
+}
+
+/* --- LOGO SECTION --- */
+.logo {
+    margin-bottom: 32px;
+}
+
+.logo-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #0d6efd, #0043a8);
+    border-radius: 16px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2);
+    color: #fff;
+}
+
+.logo h2 {
+    margin: 0 0 4px;
+    color: #1f2937;
+    font-weight: 700;
+    font-size: 26px;
+}
+
+.logo p {
+    color: #6b7280;
+    font-size: 15px;
+    margin: 0;
+}
+
+/* --- CARD SECTION --- */
+.login-card {
+    background: #ffffff;
+    padding: 40px 32px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.text-title {
+    margin: 0 0 8px;
+    font-size: 24px;
+    color: #111827;
+    font-weight: 700;
+    text-align: center;
+}
+
+.sub {
+    font-size: 15px;
+    color: #6b7280;
+    text-align: center;
+    display: block;
+    margin-bottom: 28px;
+}
+
+/* --- FORM ELEMENTS --- */
+form label {
+    display: block;
+    margin-bottom: 8px;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.input-box {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-box input {
+    width: 100%;
+    height: 50px;
+    padding: 0 16px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    outline: none;
+    font-size: 15px;
+    color: #1f2937;
+    transition: all 0.2s ease;
+}
+
+/* Hiệu ứng Focus */
+.input-box input:focus {
+    background: #fff;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+}
+
+/* --- ICONS --- */
+/* Icon bên trái (Envelope, Lock) */
+.input-box.has-icon input {
+    padding-left: 48px;
+}
+
+.input-box.has-icon>i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 18px;
+    pointer-events: none;
+    transition: color 0.2s;
+}
+
+/* Khi focus input thì icon đổi màu */
+.input-box input:focus+i,
+.input-box:focus-within>i {
+    color: #0d6efd;
+}
+
+/* Icon mắt bên phải */
+.input-box.password input {
+    padding-right: 48px;
+}
+
+.input-box.password span {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #9ca3af;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.input-box.password span:hover {
+    color: #4b5563;
+}
+
+/* --- OPTIONS & BUTTON --- */
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0 24px;
+    font-size: 14px;
+}
+
+.options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    cursor: pointer;
+    color: #4b5563;
+    font-weight: 500;
+}
+
+.options input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #0d6efd;
+    margin: 0;
+    cursor: pointer;
+}
+
+.options a {
+    color: #0d6efd;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.options a:hover {
+    color: #0043a8;
+    text-decoration: underline;
+}
+
+.btn-login {
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(to right, #0d6efd, #0b5ed7);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+.btn-login:hover {
+    background: linear-gradient(to right, #0b5ed7, #0a58ca);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(13, 110, 253, 0.4);
+}
+
+.btn-login:active {
+    transform: translateY(0);
+}
