@@ -78,7 +78,7 @@ const routes = [
             layout: "AdminLayout",
         },
     },
-    
+
     {
         path: "/admin/invoices",
         component: () => import("../components/Admin/Invoices/index.vue"),
