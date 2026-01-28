@@ -78,6 +78,7 @@ const routes = [
             layout: "AdminLayout",
         },
     },
+
 ];
 
 const router = createRouter({
