@@ -1086,3 +1086,32 @@ body {
     color: var(--text-secondary);
     font-size: 1rem;
 }
+
+/* Thêm mới vào file CSS */
+.date-column {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.date-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+}
+
+.date-row i {
+    width: 16px;
+    text-align: center;
+}
+
+.date-row.start {
+    color: var(--secondary-text); 
+    font-size: 0.8rem;
+}
+
+.date-row.end {
+    color: var(--text-main); 
+    font-weight: 600;
+}

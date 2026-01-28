@@ -4,7 +4,7 @@
             <div class="header-section">
                 <div class="header-content">
                     <h2 class="page-title">Quản lý thành viên</h2>
-                    <p class="page-subtitle">Quản lý hồ sơ, gói tập và trạng thái hội viên</p>
+                    <p class="page-subtitle">Quản lý hồ sơ, gói tập và thời hạn hội viên</p>
                 </div>
 
                 <div class="action-bar">
@@ -28,7 +28,7 @@
                             <th class="col-contact">Liên hệ</th>
                             <th class="col-package">Gói đăng ký</th>
                             <th class="col-status">Trạng thái</th>
-                            <th class="col-date">Hết hạn</th>
+                            <th class="col-date">Thời hạn (Start - End)</th>
                             <th class="col-action">Tác vụ</th>
                         </tr>
                     </thead>
@@ -49,8 +49,7 @@
                             <td>
                                 <div class="contact-group">
                                     <div class="contact-row"><i class="fa-solid fa-phone"></i> {{ member.sdt }}</div>
-                                    <div class="contact-row secondary"><i class="fa-solid fa-envelope"></i> {{
-                                        member.email }}</div>
+                                    <div class="contact-row secondary"><i class="fa-solid fa-envelope"></i> {{ member.email }}</div>
                                 </div>
                             </td>
                             <td>
@@ -60,10 +59,19 @@
                             </td>
                             <td class="cell-center">
                                 <span class="status-badge" :class="getStatusClass(member.trang_thai)">
-                                    <span ></span> {{ member.trang_thai === 1 ? 'Đang tập' : 'Hết hạn' }}
+                                    <span></span> {{ member.trang_thai === 1 ? 'Đang tập' : 'Hết hạn' }}
                                 </span>
                             </td>
-                            <td><span class="date-display">{{ member.ngay_het_han }}</span></td>
+                            <td>
+                                <div class="date-column">
+                                    <div class="date-row start" title="Ngày bắt đầu">
+                                        <i class="fa-regular fa-calendar-plus"></i> {{ member.ngay_cap }}
+                                    </div>
+                                    <div class="date-row end" title="Ngày hết hạn">
+                                        <i class="fa-regular fa-calendar-xmark"></i> {{ member.ngay_het_han }}
+                                    </div>
+                                </div>
+                            </td>
                             <td class="cell-end">
                                 <div class="action-group">
                                     <button class="btn-icon edit" @click="Object.assign(update_member, member)"
@@ -79,7 +87,6 @@
                         </tr>
                     </tbody>
                 </table>
-
                 <div class="pagination-area">
                     <span class="pagination-info">Hiển thị <b>5</b> trên <b>128</b> kết quả</span>
                     <div class="pagination-buttons">
@@ -99,25 +106,21 @@
             <div class="modal-content modern-modal">
                 <div class="modal-header-custom primary-header">
                     <h5 class="modal-title-custom"><i class="fa-solid fa-user-plus me-2"></i>Thêm Thành Viên</h5>
-                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal"><i
-                            class="fa-solid fa-xmark"></i></button>
+                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="modal-body-custom">
                     <div class="row g-4">
                         <div class="col-md-6">
                             <label class="input-label">Họ và Tên <span class="req">*</span></label>
-                            <input v-model="create_member.ho_ten" type="text" class="input-field"
-                                placeholder="Nhập họ tên..." />
+                            <input v-model="create_member.ho_ten" type="text" class="input-field" placeholder="Nhập họ tên..." />
                         </div>
                         <div class="col-md-6">
                             <label class="input-label">Số điện thoại <span class="req">*</span></label>
-                            <input v-model="create_member.sdt" type="text" class="input-field"
-                                placeholder="Nhập SĐT..." />
+                            <input v-model="create_member.sdt" type="text" class="input-field" placeholder="Nhập SĐT..." />
                         </div>
                         <div class="col-md-6">
                             <label class="input-label">Email</label>
-                            <input v-model="create_member.email" type="email" class="input-field"
-                                placeholder="example@gmail.com" />
+                            <input v-model="create_member.email" type="email" class="input-field" placeholder="example@gmail.com" />
                         </div>
                         <div class="col-md-6">
                             <label class="input-label">Gói Đăng Ký</label>
@@ -130,10 +133,14 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="input-label">Ngày Hết Hạn</label>
-                            <input v-model="create_member.ngay_het_han" type="date" class="input-field" />
+                            <label class="input-label">Ngày Bắt Đầu</label>
+                            <input v-model="create_member.ngay_cap" type="date" class="input-field" />
                         </div>
                         <div class="col-md-6">
+                            <label class="input-label">Ngày Hết Hạn (Kết thúc)</label>
+                            <input v-model="create_member.ngay_het_han" type="date" class="input-field" />
+                        </div>
+                        <div class="col-md-12">
                             <label class="input-label">Trạng Thái</label>
                             <select v-model.number="create_member.trang_thai" class="input-field select-field">
                                 <option :value="1">Đang tập (Active)</option>
@@ -144,8 +151,7 @@
                 </div>
                 <div class="modal-footer-custom">
                     <button type="button" class="btn-action secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button @click="ThemMoiThanhVien()" type="button" class="btn-action primary"
-                        data-bs-dismiss="modal">
+                    <button @click="ThemMoiThanhVien()" type="button" class="btn-action primary" data-bs-dismiss="modal">
                         <i class="fa-solid fa-floppy-disk me-1"></i> Lưu Hồ Sơ
                     </button>
                 </div>
@@ -158,8 +164,7 @@
             <div class="modal-content modern-modal">
                 <div class="modal-header-custom primary-header">
                     <h5 class="modal-title-custom"><i class="fa-solid fa-pen-to-square me-2"></i>Cập Nhật Thông Tin</h5>
-                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal"><i
-                            class="fa-solid fa-xmark"></i></button>
+                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="modal-body-custom">
                     <div class="row g-4">
@@ -185,10 +190,14 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="input-label">Ngày hết hạn</label>
-                            <input v-model="update_member.ngay_het_han" type="text" class="input-field" />
+                            <label class="input-label">Ngày Bắt Đầu</label>
+                            <input v-model="update_member.ngay_cap" type="date" class="input-field" />
                         </div>
                         <div class="col-md-6">
+                            <label class="input-label">Ngày Kết Thúc</label>
+                            <input v-model="update_member.ngay_het_han" type="date" class="input-field" />
+                        </div>
+                        <div class="col-md-12">
                             <label class="input-label">Trạng Thái</label>
                             <select v-model.number="update_member.trang_thai" class="input-field select-field">
                                 <option :value="1">Đang tập</option>
@@ -199,8 +208,7 @@
                 </div>
                 <div class="modal-footer-custom">
                     <button type="button" class="btn-action secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button v-on:click="CapNhatThanhVien()" type="button" class="btn-action primary"
-                        data-bs-dismiss="modal">
+                    <button v-on:click="CapNhatThanhVien()" type="button" class="btn-action primary" data-bs-dismiss="modal">
                         <i class="fa-solid fa-check me-1"></i> Cập Nhật
                     </button>
                 </div>
@@ -216,13 +224,10 @@
                         <i class="fa-solid fa-trash-can"></i>
                     </div>
                     <h4 class="confirm-title">Xác nhận xóa?</h4>
-                    <p class="confirm-desc">Thành viên <strong>{{ delete_member.ho_ten }}</strong> sẽ bị xóa vĩnh viễn
-                        khỏi hệ thống.</p>
-
+                    <p class="confirm-desc">Thành viên <strong>{{ delete_member.ho_ten }}</strong> sẽ bị xóa vĩnh viễn khỏi hệ thống.</p>
                     <div class="confirm-actions">
                         <button type="button" class="btn-action secondary" data-bs-dismiss="modal">Hủy bỏ</button>
-                        <button v-on:click="xoaThanhVien()" type="button" class="btn-action danger"
-                            data-bs-dismiss="modal">Xóa thành viên</button>
+                        <button v-on:click="xoaThanhVien()" type="button" class="btn-action danger" data-bs-dismiss="modal">Xóa thành viên</button>
                     </div>
                 </div>
             </div>
@@ -237,17 +242,19 @@ export default {
     data() {
         return {
             list_members: [
-                { id: 101, ho_ten: 'Nguyễn Văn An', sdt: '0901234567', email: 'an.nguyen@gmail.com', avatar: '', goi_dang_ky: 'Premium 6 Tháng', trang_thai: 1, ngay_het_han: '15/07/2026' },
-                { id: 102, ho_ten: 'Trần Thị Bình', sdt: '0912345678', email: 'binh.tran@gmail.com', avatar: '', goi_dang_ky: 'Standard 1 Tháng', trang_thai: 1, ngay_het_han: '01/05/2026' },
-                { id: 103, ho_ten: 'Lê Hoàng Cường', sdt: '0988777666', email: 'cuong.gym@hotmail.com', avatar: '', goi_dang_ky: 'VIP 12 Tháng', trang_thai: 0, ngay_het_han: '20/01/2026' },
+                { id: 101, ho_ten: 'Nguyễn Văn An', sdt: '0901234567', email: 'an.nguyen@gmail.com', avatar: '', goi_dang_ky: 'Premium 6 Tháng', trang_thai: 1, ngay_cap: '15/01/2026', ngay_het_han: '15/07/2026' },
+                { id: 102, ho_ten: 'Trần Thị Bình', sdt: '0912345678', email: 'binh.tran@gmail.com', avatar: '', goi_dang_ky: 'Standard 1 Tháng', trang_thai: 1, ngay_cap: '01/04/2026', ngay_het_han: '01/05/2026' },
+                { id: 103, ho_ten: 'Lê Hoàng Cường', sdt: '0988777666', email: 'cuong.gym@hotmail.com', avatar: '', goi_dang_ky: 'VIP 12 Tháng', trang_thai: 0, ngay_cap: '20/01/2025', ngay_het_han: '20/01/2026' },
             ],
             create_member: { 
                 ho_ten: '', 
                 sdt: '', 
                 email: '', 
                 goi_dang_ky: '', 
+                ngay_cap: '', 
                 ngay_het_han: '', 
-                trang_thai: 1 },
+                trang_thai: 1 
+            },
             update_member: {},
             delete_member: {},
             tim_kiem: { 
@@ -256,21 +263,21 @@ export default {
         }
     },
     methods: {
-        // Lấy chữ cái đầu tên khi không có avatar đại diện thành viên 
         getInitials(name) { return name ? name.split(' ').pop().charAt(0).toUpperCase() : ''; },
-        // Lấy màu nền ngẫu nhiên cho avatar khi không có ảnh đại diện
         getRandomColor(index) {
             const colors = ['bg-gradient-blue', 'bg-gradient-purple', 'bg-gradient-green', 'bg-gradient-orange'];
             return colors[index % colors.length];
         },
-        // Lấy lớp trạng thái khi hiển thị trạng thái hội viên 
         getStatusClass(status) { return status === 1 ? 'status-active' : 'status-expired'; },
 
         ThemMoiThanhVien() {
             const newId = Math.floor(Math.random() * 1000) + 100;
+            // Thêm logic xử lý ngày nếu cần (ví dụ format lại)
             const newMember = { ...this.create_member, id: newId, avatar: '' };
             this.list_members.unshift(newMember);
-            this.create_member = { ho_ten: '', sdt: '', email: '', goi_dang_ky: '', ngay_het_han: '', trang_thai: 1 };
+            
+            // Reset form
+            this.create_member = { ho_ten: '', sdt: '', email: '', goi_dang_ky: '', ngay_cap: '', ngay_het_han: '', trang_thai: 1 };
         },
         CapNhatThanhVien() { alert(`Đã cập nhật: ${this.update_member.ho_ten}`); },
         xoaThanhVien() {

@@ -38,6 +38,22 @@ const routes = [
             layout: "AdminLayout",
         },
     },
+
+    {
+        path: "/admin/checkin",
+        component: () => import("../components/Admin/Checkin/index.vue"),
+        meta: {
+            layout: "AdminLayout",
+        },
+    },
+
+    {
+        path: "/admin/services",
+        component: () => import("../components/Admin/Service/index.vue"),
+        meta: {
+            layout: "AdminLayout",
+        },
+    },
 ];
 
 const router = createRouter({
