@@ -1,0 +1,169 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.otp-pass {
+    min-height: 100vh;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inter', system-ui, sans-serif;
+    padding: 20px;
+}
+
+.otp-container {
+    width: 100%;
+    max-width: 440px;
+    text-align: center;
+}
+
+.logo {
+    margin-bottom: 32px;
+}
+
+.logo-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #0d6efd, #0a58ca);
+    border-radius: 16px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 8px 16px rgba(13, 110, 253, 0.2);
+}
+
+.logo h2 {
+    margin: 0 0 4px;
+    color: #1f2937;
+    font-weight: 700;
+    font-size: 24px;
+}
+
+.logo p {
+    color: #6b7280;
+    font-size: 15px;
+    margin: 0;
+}
+
+.otp-card {
+    background: #ffffff;
+    padding: 40px 32px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.text-title {
+    margin: 0 0 8px;
+    font-size: 22px;
+    color: #111827;
+    font-weight: 700;
+    text-align: center;
+}
+
+.sub {
+    font-size: 14px;
+    color: #6b7280;
+    text-align: center;
+    display: block;
+    margin-bottom: 24px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.input-box {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.input-box input {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    outline: none;
+    font-size: 15px;
+    color: #1f2937;
+    transition: all 0.2s ease;
+}
+
+.input-box input:focus {
+    background: #fff;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+}
+
+.input-box.has-icon input {
+    padding-left: 44px;
+}
+
+.input-box.has-icon>i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 18px;
+    pointer-events: none;
+    transition: color 0.2s;
+}
+
+.input-box input:focus+i,
+.input-box:focus-within>i {
+    color: #0d6efd;
+}
+
+.lable-text {
+    margin: 16px 0 24px;
+    background: #eff6ff;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 3px solid #0d6efd;
+}
+
+.lable-text p {
+    margin: 0;
+    font-size: 13px;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+.btn-otp {
+    width: 100%;
+    height: 48px;
+    background: #0d6efd;
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);
+}
+
+.btn-otp:hover {
+    background: #0b5ed7;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(13, 110, 253, 0.3);
+}
+
+.btn-otp:active {
+    transform: translateY(0);
+}
