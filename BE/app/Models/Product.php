@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProductFactory> */
-    use HasFactory;
+    protected $table = 'products';
+    protected $fillable = [
+        'ten_san_pham',
+        'gia_ban',
+        'so_luong',
+        'danh_muc',
+    ];
+
 }
