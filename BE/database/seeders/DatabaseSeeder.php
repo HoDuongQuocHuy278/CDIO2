@@ -27,6 +27,17 @@ class DatabaseSeeder extends Seeder
             MemberSeeder::class,
             ProductSeeder::class,
             EmployeeSeeder::class,
+            ServicePackageSeeder::class,
+            ServiceSeeder::class,
+            equipmentSeeder::class,
+            equipmenttypesSeeder::class,
+            roomsSeeder::class,
+            suppliersSeeder::class
+
+
+
+
+
         ]);
     }
 }
