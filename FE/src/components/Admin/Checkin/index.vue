@@ -16,8 +16,7 @@
 
                 <div v-if="!member" class="camera-wrapper">
                     <div class="camera-feed">
-                        <img src="https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?q=80&w=2069&auto=format&fit=crop"
-                            alt="CCTV">
+                        <video ref="videoRef" autoplay playsinline muted></video>
                         <div class="scan-overlay">
                             <div class="scan-line"></div>
                             <div class="scan-text">DETECTING FACE...</div>
@@ -127,7 +126,7 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, onBeforeUnmount } from 'vue';
 import './index.css'
 
 export default {
@@ -135,11 +134,17 @@ export default {
 
     // Dùng setup() để quản lý biến tập trung, dễ return
     setup() {
-        // --- 1. STATE (KHAI BÁO BIẾN) ---
+        // ===============================
+        // 1. STATE
+        // ===============================
         const searchQuery = ref('');
         const member = ref(null);
         const checkInCount = ref(142);
         const activeNow = ref(45);
+
+        // CAMERA
+        const videoRef = ref(null);
+        let stream = null;
 
         const zones = reactive([
             { name: 'Khu Cardio (Tầng 1)', percent: 85 },
@@ -159,6 +164,37 @@ export default {
             { id: 'WF-102', name: 'Trần Thị Bình', avatar: 'https://randomuser.me/api/portraits/women/44.jpg', pack: 'Yoga Basic', expiry: '05/2026', lastVisitDays: 12, visits: 12 },
             { id: 'WF-103', name: 'Lê Hùng', avatar: 'https://randomuser.me/api/portraits/men/11.jpg', pack: 'Student Pack', expiry: '02/2026', lastVisitDays: 35, visits: 4 }
         ];
+        const startCamera = async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 1280, height: 720 },
+                    audio: false
+                });
+                if (videoRef.value) {
+                    videoRef.value.srcObject = stream;
+                }
+            } catch (err) {
+                alert('❌ Không mở được camera. Kiểm tra quyền trình duyệt!');
+                console.error(err);
+            }
+        };
+
+        const stopCamera = () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+        };
+
+        onMounted(() => {
+            startCamera();
+        });
+
+        onBeforeUnmount(() => {
+            stopCamera();
+        });
+
+
 
         // --- 2. BUSINESS LOGIC (CHURN PREDICTION) ---
         const analyzeMember = (rawMember) => {
@@ -167,24 +203,23 @@ export default {
             result.frequency = (Math.random() * 5 + 1).toFixed(1);
             result.totalVisits = rawMember.visits + 1;
 
-            // Logic 3-Day Rule (Quan trọng cho đồ án)
             if (result.daysAbsent <= 3) {
                 result.churnClass = 'safe-bg';
                 result.churnIcon = 'fa-circle-check';
                 result.churnLabel = 'THÀNH VIÊN TÍCH CỰC';
-                result.aiMessage = "Khách hàng duy trì tập luyện tốt. Đề xuất: Mời thử nước uống mới.";
+                result.aiMessage = "Khách hàng duy trì tập luyện tốt.";
                 result.isChurnRisk = false;
             } else if (result.daysAbsent <= 14) {
                 result.churnClass = 'warning-bg';
                 result.churnIcon = 'fa-triangle-exclamation';
-                result.churnLabel = 'CẦN QUAN TÂM (RISK)';
-                result.aiMessage = `Đã vắng ${result.daysAbsent} ngày. Đề xuất: Lễ tân hỏi thăm nhẹ nhàng về công việc/sức khỏe.`;
+                result.churnLabel = 'CẦN QUAN TÂM';
+                result.aiMessage = `Đã vắng ${result.daysAbsent} ngày.`;
                 result.isChurnRisk = true;
             } else {
                 result.churnClass = 'danger-bg';
                 result.churnIcon = 'fa-skull-crossbones';
-                result.churnLabel = 'NGUY CƠ BỎ TẬP CAO';
-                result.aiMessage = "CẢNH BÁO ĐỎ: Khách có nguy cơ hủy gói. Hành động: Tặng Voucher, PT ra hướng dẫn ngay.";
+                result.churnLabel = 'NGUY CƠ BỎ TẬP';
+                result.aiMessage = "Cảnh báo đỏ.";
                 result.isChurnRisk = true;
             }
             return result;
@@ -193,10 +228,9 @@ export default {
         // --- 3. METHODS (XỬ LÝ SỰ KIỆN) ---
 
         // Xử lý khi có dữ liệu khách (từ Camera hoặc nhập tay)
-        const processCheckIn = (user) => {
+       const processCheckIn = (user) => {
             member.value = analyzeMember(user);
 
-            // Log lại
             const now = new Date();
             const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
             recentLogs.unshift({ time: timeStr, name: user.name });
@@ -224,9 +258,10 @@ export default {
         };
 
         const manualCheckIn = () => {
-            const found = mockDB.find(u => u.id.includes(searchQuery.value) || u.name.includes(searchQuery.value));
-            if (found) processCheckIn(found);
-            else alert('Không tìm thấy thành viên!');
+            const found = mockDB.find(u =>
+                u.id.includes(searchQuery.value) || u.name.includes(searchQuery.value)
+            );
+            found ? processCheckIn(found) : alert('Không tìm thấy!');
         };
 
         const resetScan = () => {
@@ -244,7 +279,8 @@ export default {
         const getZoneStatus = (p) => p > 80 ? 'Full' : (p > 50 ? 'Medium' : 'Empty');
 
         // --- 4. RETURN (TRẢ BIẾN VỀ TEMPLATE) ---
-        return {
+         return {
+            videoRef,
             searchQuery,
             member,
             checkInCount,
