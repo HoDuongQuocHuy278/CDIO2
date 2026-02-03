@@ -50,8 +50,7 @@
         <div class="product-header">
           <div class="product-icon">📦</div>
           <span :class="['badge', item.stock < 20 ? 'danger' : 'success']">
-            {{ item.stock < 20 ? 'Sắp hết' : 'Còn hàng' }}
-          </span>
+            {{ item.stock < 20 ? 'Sắp hết' : 'Còn hàng' }} </span>
         </div>
 
         <h4>{{ item.name }}</h4>
@@ -65,18 +64,16 @@
         </div>
 
         <div class="progress">
-          <div
-            class="progress-bar"
-            :style="{ width: stockPercent(item) + '%' }"
-            :class="item.stock < 20 ? 'red' : 'green'"
-          ></div>
+          <div class="progress-bar" :style="{ width: stockPercent(item) + '%' }"
+            :class="item.stock < 20 ? 'red' : 'green'"></div>
         </div>
 
         <div class="card-actions">
           <button class="btn-edit" @click="openEdit(item)" data-bs-toggle="modal" data-bs-target="#editProductModal">
             ✏️ Sửa
           </button>
-          <button class="btn-delete" @click="openDelete(item)" data-bs-toggle="modal" data-bs-target="#deleteProductModal">
+          <button class="btn-delete" @click="openDelete(item)" data-bs-toggle="modal"
+            data-bs-target="#deleteProductModal">
             🗑️ Xóa
           </button>
         </div>
