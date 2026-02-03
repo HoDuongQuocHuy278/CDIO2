@@ -23,6 +23,7 @@ class Member extends Model
 
     const HOAT_DONG = 1;
     const KHONG_HOAT_DONG = 0;
+    
     const WARNING_LEVEL_0 = 0;
     const WARNING_LEVEL_1 = 1;
     const WARNING_LEVEL_2 = 2;
