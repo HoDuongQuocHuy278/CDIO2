@@ -56,12 +56,12 @@
             </router-link>
 
             <router-link to="/admin/revenue" class="menu-item">
-                <i class='bx bx-dumbbell'></i>
+                <i class='bx bx-line-chart'></i>
                 <span>Doanh thu</span>
             </router-link>
 
             <router-link to="/admin/income" class="menu-item">
-                <i class='bx bxs-shopping-bag'></i>
+                <i class='bx bx-wallet'></i>
                 <span>Thu nhập</span>
                 
             </router-link>
@@ -82,6 +82,7 @@
 </template>
 
 <style scoped>
+
 .sidebar {
     width: 280px;
     /* Rộng hơn xíu cho thoáng */
