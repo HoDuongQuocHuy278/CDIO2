@@ -1,0 +1,480 @@
+.schedule-page {
+  padding: 24px;
+  background: #f8fafc;
+}
+
+/* HEADER */
+.schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.btn-add {
+  background: #2563eb;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+}
+
+/* CALENDAR */
+.calendar {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.calendar-header {
+  display: grid;
+  grid-template-columns: 90px repeat(7, 1fr);
+  background: #f9fafb;
+  font-weight: 600;
+}
+
+.day-col,
+.time-col {
+  padding: 12px;
+  border-right: 1px solid #e5e7eb;
+}
+
+.calendar-body {
+  display: grid;
+}
+
+.calendar-row {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  min-height: 60px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.day-cell {
+  position: relative;
+  border-right: 1px solid #e5e7eb;
+}
+
+/* NOTE STYLE */
+.event-note {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  right: 6px;
+
+  background: linear-gradient(135deg, #6d83f2, #5b6df8);
+  border-radius: 14px;
+  padding: 10px 10px 8px;
+
+  color: white;
+  font-size: 12px;
+  line-height: 1.25;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  box-shadow:
+    0 8px 20px rgba(59, 130, 246, 0.35),
+    inset 0 1px 0 rgba(255,255,255,0.25);
+
+  overflow: hidden;
+}
+
+/* PT NAME */
+.note-pt {
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* CUSTOMER */
+.note-customer {
+  font-size: 12px;
+  opacity: 0.95;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* TIME */
+.note-time {
+  font-size: 11px;
+  opacity: 0.85;
+  margin-top: 4px;
+  text-align: right;
+}
+.note-actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 6px;
+  z-index: 5; /* ⭐ BẮT BUỘC */
+}
+
+.note-actions i {
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.note-actions i:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.event-note::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
+  background: rgba(255,255,255,.6);
+  border-radius: 4px;
+}
+.schedule-page {
+  padding: 24px;
+  background: #f8fafc;
+}
+
+/* HEADER */
+.schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.btn-add {
+  background: #2563eb;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+}
+
+/* CALENDAR */
+.calendar {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.calendar-header {
+  display: grid;
+  grid-template-columns: 90px repeat(7, 1fr);
+  background: #f9fafb;
+  font-weight: 600;
+}
+
+.day-col,
+.time-col {
+  padding: 12px;
+  border-right: 1px solid #e5e7eb;
+}
+
+.calendar-body {
+  display: grid;
+}
+
+.calendar-row {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  min-height: 60px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.day-cell {
+  position: relative;
+  border-right: 1px solid #e5e7eb;
+}
+
+/* NOTE STYLE */
+.event-note {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  right: 6px;
+
+  background: linear-gradient(135deg, #6d83f2, #5b6df8);
+  border-radius: 14px;
+  padding: 10px 10px 8px;
+
+  color: white;
+  font-size: 12px;
+  line-height: 1.25;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  box-shadow:
+    0 8px 20px rgba(59, 130, 246, 0.35),
+    inset 0 1px 0 rgba(255,255,255,0.25);
+
+  overflow: hidden;
+}
+
+/* PT NAME */
+.note-pt {
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* CUSTOMER */
+.note-customer {
+  font-size: 12px;
+  opacity: 0.95;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* TIME */
+.note-time {
+  font-size: 11px;
+  opacity: 0.85;
+  margin-top: 4px;
+  text-align: right;
+}
+.note-actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 6px;
+  z-index: 5; /* ⭐ BẮT BUỘC */
+}
+
+.note-actions i {
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.note-actions i:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.event-note::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
+  background: rgba(255,255,255,.6);
+  border-radius: 4px;
+}
+/* ===== MODAL OVERLAY ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* ===== MODAL BOX ===== */
+.custom-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  min-width: 360px;
+
+  position: relative;
+  z-index: 10000;
+
+  box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+}
+
+
+/* Animation */
+@keyframes modalZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ===== MODAL TITLE ===== */
+.modal h3 {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 18px;
+  color: #0f172a;
+}
+
+/* ===== FORM ===== */
+.modal input,
+.modal select {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  background: #f9fafb;
+  font-size: 14px;
+  margin-bottom: 14px;
+  transition: all .2s ease;
+}
+
+.modal input::placeholder {
+  color: #9ca3af;
+}
+
+.modal input:focus,
+.modal select:focus {
+  outline: none;
+  background: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+}
+
+/* ===== ACTIONS ===== */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+/* Cancel */
+.modal-actions button:not(.primary):not(.danger) {
+  background: #e5e7eb;
+  color: #374151;
+}
+.modal-actions button:not(.primary):hover {
+  background: #d1d5db;
+}
+
+/* Primary */
+.modal-actions .primary {
+  background: linear-gradient(135deg,#6366f1,#4f46e5);
+  color: white;
+}
+.modal-actions .primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(99,102,241,0.4);
+}
+
+/* Danger */
+.modal-actions .danger {
+  background: #ef4444;
+  color: white;
+}
+.modal-actions .danger:hover {
+  background: #dc2626;
+}
+
+/* ===== DELETE MODAL ===== */
+.modal.text-center {
+  text-align: center;
+}
+
+.delete-icon {
+  font-size: 46px;
+  color: #ef4444;
+  margin-bottom: 12px;
+}
+
+:deep(.modal-overlay) {
+  display: flex;
+}
+
+:deep(.custom-modal) {
+  background: #fff;
+  min-width: 360px;
+}
+
+/* ===== MODAL FORM ===== */
+.modal-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  color: #0f172a;
+}
+
+/* Form wrapper */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Row */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+/* 3 cột cho giờ */
+.form-row:last-child {
+  grid-template-columns: 1.2fr 1fr 1fr;
+}
+
+/* Group */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* Input */
+.form-group input,
+.form-group select {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  background: #f9fafb;
+  font-size: 14px;
+  transition: .2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  background: white;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99,102,241,.15);
+}
