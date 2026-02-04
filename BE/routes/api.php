@@ -26,6 +26,8 @@ Route::group(['prefix' => 'admin','middleware' => 'AdminMiddleware'], function (
     Route::get('/employees', [EmployeeController::class, 'getEmployee']);
     Route::get('/services', [ServiceController::class, 'getServices']);
     Route::get('/equipments', [EquipmentsController::class, 'getEquipments']);
+    Route::post('/member/create', [MemberController::class, 'storeMember']);
+
 
 
 

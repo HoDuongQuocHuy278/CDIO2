@@ -15,15 +15,22 @@ class Member extends Model
         'address',
         'avatar',
         'status',
+        'service_id',
+
+        'service_name',
         'package_name',
+        'package_price',
         'package_duration',
+
         'start_date',
         'end_date',
+        'absent_days',
+        'warning_level',
     ];
 
     const HOAT_DONG = 1;
     const KHONG_HOAT_DONG = 0;
-    
+
     const WARNING_LEVEL_0 = 0;
     const WARNING_LEVEL_1 = 1;
     const WARNING_LEVEL_2 = 2;
