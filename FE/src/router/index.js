@@ -87,6 +87,14 @@ const routes = [
         },
     },
 
+    {
+        path: "/admin/revenue",
+        component: () => import("../components/Admin/Revenue/index.vue"),
+        meta: {
+            layout: "AdminLayout",
+        },
+    },
+
 ];
 
 const router = createRouter({
