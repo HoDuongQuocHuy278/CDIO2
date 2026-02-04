@@ -18,8 +18,11 @@ return new class extends Migration
             $table->string('phone');
             $table->string('address')->nullable();
             $table->string('avatar')->nullable();
-            $table->tinyInteger('status')->default(1)->comment('1: Hoạt động, 0: Không hoạt động');
+            $table->integer('status')->default(1)->comment('1: Hoạt động, 0: Không hoạt động');
+            $table->bigInteger('service_id');
             $table->string('package_name');
+            $table->string('service_name');     // ten_dich_vu
+            $table->integer('package_price');   // gia_tien
             $table->integer('package_duration')->comment('Số tháng đăng ký');
             $table->date('start_date');
             $table->date('end_date');
