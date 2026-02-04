@@ -60,14 +60,8 @@
                 <span>Doanh thu</span>
             </router-link>
 
-            <router-link to="/admin/income" class="menu-item">
-                <i class='bx bx-wallet'></i>
-                <span>Thu nhập</span>
-                
-            </router-link>
-
             <router-link to="/admin/schedule" class="menu-item">
-                <i class='bx bxs-file-doc'></i>
+                <i class='bx bx-calendar-check'></i>
                 <span>Lịch làm</span>
             </router-link>
         </nav>

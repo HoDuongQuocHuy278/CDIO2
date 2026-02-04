@@ -95,6 +95,14 @@ const routes = [
         },
     },
 
+    {
+        path: "/admin/schedule",
+        component: () => import("../components/Admin/Schedule/index.vue"),
+        meta: {
+            layout: "AdminLayout",
+        },
+    },
+
 ];
 
 const router = createRouter({
