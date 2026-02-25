@@ -338,3 +338,35 @@
   color: #6b7280;
   font-size: 14px;
 }
+
+.pagination-buttons {
+  display: flex;
+  gap: 6px;
+}
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-soft);
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-body);
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.page-btn:hover:not(.disabled) {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.page-btn.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.page-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

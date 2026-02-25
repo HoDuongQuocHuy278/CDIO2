@@ -29,10 +29,13 @@ class DatabaseSeeder extends Seeder
             EmployeeSeeder::class,
             ServicePackageSeeder::class,
             ServiceSeeder::class,
-            equipmentSeeder::class,
             equipmenttypesSeeder::class,
             roomsSeeder::class,
-            suppliersSeeder::class
+            suppliersSeeder::class,
+            equipmentSeeder::class,
+            CheckInSeeder::class,
+            InvoiceSeeder::class,
+            RevenueSeeder::class,
 
 
 

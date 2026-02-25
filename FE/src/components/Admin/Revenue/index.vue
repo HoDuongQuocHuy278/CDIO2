@@ -127,64 +127,58 @@
       </table>
     </div>
 
+    <!-- PAGINATION -->
+    <div class="pagination-container mt-3" v-if="totalPages > 1">
+      <div class="pagination-info">
+        Trang {{ currentPage }} / {{ totalPages }} (Tổng {{ totalRecords }} bản ghi)
+      </div>
+      <div class="pagination-group">
+        <button class="page-btn" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <button 
+          v-for="page in totalPages" 
+          :key="page" 
+          class="page-btn" 
+          :class="{ active: currentPage === page }"
+          @click="changePage(page)"
+        >
+          {{ page }}
+        </button>
+
+        <button class="page-btn" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script>
 import "./index.css";
+import axios from '@/axios';
+
 export default {
   name: "RevenueManager",
 
   data() {
     return {
-      /* ===== FILTER ===== */
       filter: {
         fromDate: "",
         toDate: "",
         source: ""
       },
 
-      /* ===== REVENUE LIST (DATA GIẢ) ===== */
-      revenues: [
-        {
-          id: 1,
-          date: "2026-01-14",
-          customer: "Nguyễn Văn A",
-          source: "Gói tập",
-          item: "Gym 1 tháng",
-          amount: 500
-        },
-        {
-          id: 2,
-          date: "2026-01-14",
-          customer: "Trần Thị B",
-          source: "Dịch vụ",
-          item: "PT cá nhân",
-          amount: 3000
-        },
-        {
-          id: 3,
-          date: "2026-01-13",
-          customer: "Lê Văn C",
-          source: "Sản phẩm",
-          item: "Whey Protein",
-          amount: 1200
-        },
-        {
-          id: 4,
-          date: "2026-01-12",
-          customer: "Phạm Thị D",
-          source: "Dịch vụ",
-          item: "Yoga cơ bản",
-          amount: 800
-        }
-      ]
+      revenues: [],
+      currentPage: 1,
+      totalPages: 1,
+      totalRecords: 0
     };
   },
 
-  /* ===== COMPUTED ===== */
   computed: {
-    /* LỌC DANH SÁCH DOANH THU */
     filteredRevenues() {
       return this.revenues.filter(r => {
         const matchSource =
@@ -200,36 +194,31 @@ export default {
       });
     },
 
-    /* TỔNG DOANH THU */
     totalRevenue() {
       return this.filteredRevenues.reduce(
-        (sum, r) => sum + r.amount,
+        (sum, r) => sum + Number(r.amount),
         0
       );
     },
 
-    /* DOANH THU HÔM NAY */
     todayRevenue() {
       const today = new Date().toISOString().slice(0, 10);
       return this.revenues
         .filter(r => r.date === today)
-        .reduce((sum, r) => sum + r.amount, 0);
+        .reduce((sum, r) => sum + Number(r.amount), 0);
     },
 
-    /* DOANH THU THÁNG HIỆN TẠI */
     monthRevenue() {
       const month = new Date().toISOString().slice(0, 7);
       return this.revenues
         .filter(r => r.date.startsWith(month))
-        .reduce((sum, r) => sum + r.amount, 0);
+        .reduce((sum, r) => sum + Number(r.amount), 0);
     },
 
-    /* SỐ GIAO DỊCH */
     transactionCount() {
       return this.filteredRevenues.length;
     },
 
-    /* DOANH THU THEO NGUỒN */
     revenueBySource() {
       const result = {
         "Gói tập": 0,
@@ -238,22 +227,38 @@ export default {
       };
 
       this.filteredRevenues.forEach(r => {
-        result[r.source] += r.amount;
+        if (result[r.source] !== undefined) {
+            result[r.source] += Number(r.amount);
+        }
       });
 
       return result;
     }
   },
-
-  /* ===== METHODS ===== */
+  mounted() {
+    this.getListRevenue();
+  },
   methods: {
+    getListRevenue(page = 1) {
+        axios.get(`admin/doanh-thu/get-data?page=${page}`)
+            .then((res) => {
+                this.revenues = res.data.data.data;
+                this.currentPage = res.data.data.current_page;
+                this.totalPages = res.data.data.last_page;
+                this.totalRecords = res.data.data.total;
+            });
+    },
+    changePage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.getListRevenue(page);
+      }
+    },
     exportReport() {
       alert("Xuất báo cáo (demo)");
-      // Sau này thay bằng export Excel / PDF
     },
 
     formatMoney(value) {
-      return value.toLocaleString("vi-VN") + "k";
+      return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value * 1000);
     }
   }
 };

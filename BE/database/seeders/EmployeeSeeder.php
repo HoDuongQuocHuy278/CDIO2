@@ -13,46 +13,31 @@ class EmployeeSeeder extends Seeder
      */
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('employees')->truncate();
-        DB::table('employees')->insert([
-            [
-                'ho_ten'        => 'Nguyễn Văn Hùng',
-                'ngay_sinh'     => '1995-04-15',
-                'sdt'           => '0905123456',
-                'dia_chi'       => 'Hải Châu, Đà Nẵng',
-                'email'         => 'hunghlv@gym.com',
-                'chuc_vu'       => 'Huấn luyện viên',
-                'luong'         => 12000000,
-                'ngay_vao_lam'  => '2022-01-10',
-                'trang_thai'    => 0,
-                'user_id'       => 1,
-            ],
-            [
-                'ho_ten'        => 'Trần Thị Mai',
-                'ngay_sinh'     => '1998-09-20',
-                'sdt'           => '0912345678',
-                'dia_chi'       => 'Liên Chiểu, Đà Nẵng',
-                'email'         => 'mailt@gym.com',
-                'chuc_vu'       => 'Lễ tân',
-                'luong'         => 7000000,
-                'ngay_vao_lam'  => '2023-03-01',
-                'trang_thai'    => 1,
-                'user_id'       => 2,
-            ],
-            [
-                'ho_ten'        => 'Lê Quốc Bảo',
-                'ngay_sinh'     => '1990-12-05',
-                'sdt'           => '0987654321',
-                'dia_chi'       => 'Sơn Trà, Đà Nẵng',
-                'email'         => 'baoql@gym.com',
-                'chuc_vu'       => 'Quản lý',
-                'luong'         => 18000000,
-                'ngay_vao_lam'  => '2021-06-15',
-                'trang_thai'    => 2,
-                'user_id'       => 3,
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            ],
+        $roles = ['Huấn luyện viên', 'Lễ tân', 'Quản lý', 'Bảo vệ', 'Tư vấn viên'];
+        $names = [
+            'Lê Minh', 'Phan Hùng', 'Trịnh Hà', 'Đinh Thắng', 'Lâm Đào',
+            'Đoàn Thịnh', 'Thân Thắng', 'Lương Ngọc', 'Hà Tuấn', 'Tô Cẩm',
+            'Bạch Tùng', 
+        ];
 
-        ]);
+        foreach ($names as $index => $name) {
+            DB::table('employees')->insert([
+                'ho_ten' => $name,
+                'ngay_sinh' => date('Y-m-d', strtotime('-' . rand(20, 45) . ' years')),
+                'dia_chi' => 'Địa chỉ số ' . ($index + 1),
+                'sdt' => '09' . str_pad(rand(0, 99999999), 8, '0', STR_PAD_LEFT),
+                'email' => 'employee' . ($index + 1) . '@wellfit.com',
+                'chuc_vu' => $roles[array_rand($roles)],
+                'trang_thai' => 1,
+                'ngay_vao_lam' => date('Y-m-d', strtotime('-' . rand(0, 365) . ' days')),
+                'luong' => rand(7, 25) * 1000000,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 }

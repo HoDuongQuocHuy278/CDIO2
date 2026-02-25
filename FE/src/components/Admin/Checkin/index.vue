@@ -14,7 +14,7 @@
         <div class="main-content">
             <div class="scan-panel">
 
-                <div v-if="!member" class="camera-wrapper">
+                <div v-show="!member" class="camera-wrapper">
                     <div class="camera-feed">
                         <video ref="videoRef" autoplay playsinline muted></video>
                         <div class="scan-overlay">
@@ -118,6 +118,17 @@
                             <span class="u-name">{{ log.name }}</span>
                         </li>
                     </ul>
+
+                    <!-- LOGS PAGINATION -->
+                    <div class="pagination-mini mt-2" v-if="logTotalPages > 1">
+                        <button class="btn-mini" :disabled="logCurrentPage === 1" @click="changeLogPage(logCurrentPage - 1)">
+                             <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <span>{{ logCurrentPage }} / {{ logTotalPages }}</span>
+                        <button class="btn-mini" :disabled="logCurrentPage === logTotalPages" @click="changeLogPage(logCurrentPage + 1)">
+                             <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -127,22 +138,20 @@
 
 <script>
 import { ref, reactive, onMounted, onBeforeUnmount } from 'vue';
-import './index.css'
+import './index.css';
+import axios from '@/axios';
+import { useToast } from 'vue-toastification';
 
 export default {
     name: 'SmartCheckIn',
 
-    // Dùng setup() để quản lý biến tập trung, dễ return
     setup() {
-        // ===============================
-        // 1. STATE
-        // ===============================
+        const toast = useToast();
         const searchQuery = ref('');
         const member = ref(null);
-        const checkInCount = ref(142);
-        const activeNow = ref(45);
+        const checkInCount = ref(0);
+        const activeNow = ref(0);
 
-        // CAMERA
         const videoRef = ref(null);
         let stream = null;
 
@@ -152,18 +161,35 @@ export default {
             { name: 'Yoga Studio', percent: 10 }
         ]);
 
-        const recentLogs = reactive([
-            { time: '17:30', name: 'Phạm Văn Nam' },
-            { time: '17:28', name: 'Lê Thị Hoa' },
-            { time: '17:25', name: 'Trần Minh Đức' }
-        ]);
+        const recentLogs = ref([]);
+        const logCurrentPage = ref(1);
+        const logTotalPages = ref(1);
+        const logTotalRecords = ref(0);
 
-        // MOCK DATA (Thay thế bằng API Call sau này)
-        const mockDB = [
-            { id: 'WF-101', name: 'Nguyễn Văn An', avatar: 'https://randomuser.me/api/portraits/men/32.jpg', pack: 'Diamond Member', expiry: '12/2026', lastVisitDays: 1, visits: 105 },
-            { id: 'WF-102', name: 'Trần Thị Bình', avatar: 'https://randomuser.me/api/portraits/women/44.jpg', pack: 'Yoga Basic', expiry: '05/2026', lastVisitDays: 12, visits: 12 },
-            { id: 'WF-103', name: 'Lê Hùng', avatar: 'https://randomuser.me/api/portraits/men/11.jpg', pack: 'Student Pack', expiry: '02/2026', lastVisitDays: 35, visits: 4 }
-        ];
+        const fetchLogs = async (page = 1) => {
+            try {
+                const res = await axios.get(`admin/check-in/get-data?page=${page}`);
+                recentLogs.value = res.data.data.data.map(log => ({
+                    time: new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    name: log.member.full_name
+                }));
+                logCurrentPage.value = res.data.data.current_page;
+                logTotalPages.value = res.data.data.last_page;
+                logTotalRecords.value = res.data.data.total;
+                
+                checkInCount.value = logTotalRecords.value;
+                activeNow.value = Math.max(0, logTotalRecords.value - 2); // Mocking active count for now
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        const changeLogPage = (page) => {
+            if (page >= 1 && page <= logTotalPages.value) {
+                fetchLogs(page);
+            }
+        };
+
         const startCamera = async () => {
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
@@ -174,7 +200,7 @@ export default {
                     videoRef.value.srcObject = stream;
                 }
             } catch (err) {
-                alert('❌ Không mở được camera. Kiểm tra quyền trình duyệt!');
+                toast.error('❌ Không mở được camera. Kiểm tra quyền trình duyệt!');
                 console.error(err);
             }
         };
@@ -186,82 +212,140 @@ export default {
             }
         };
 
-        onMounted(() => {
-            startCamera();
-        });
-
         onBeforeUnmount(() => {
             stopCamera();
+            if (detectInterval) clearInterval(detectInterval);
         });
 
+        let detectInterval = null;
+        let isDetecting = false;
 
+        const startAutoDetection = () => {
+            detectInterval = setInterval(async () => {
+                if (isDetecting || member.value) return;
+                
+                const canvas = document.createElement('canvas');
+                if (!videoRef.value) return;
+                
+                canvas.width = videoRef.value.videoWidth;
+                canvas.height = videoRef.value.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(videoRef.value, 0, 0);
+                
+                const imageData = canvas.toDataURL('image/jpeg', 0.8);
+                
+                isDetecting = true;
+                try {
+                    const res = await axios.post('admin/check-in/recognize', { image: imageData });
+                    if (res.data.status && res.data.data) {
+                        const confidence = res.data.confidence || 0;
+                        // Score requirement: 0.42 is our backend strict threshold
+                        // We can add a high-confidence threshold for auto-success
+                        if (confidence > 0.45) {
+                            toast.success(`✅ Nhận diện: ${res.data.data.full_name} (${Math.round(confidence*100)}%)`);
+                            processCheckIn(res.data.data);
+                        } else {
+                            console.log("Confidence too low for auto check-in", confidence);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Face Recognition Service Error:", err);
+                } finally {
+                    isDetecting = false;
+                }
+            }, 2500); // Check every 2.5 seconds
+        };
 
-        // --- 2. BUSINESS LOGIC (CHURN PREDICTION) ---
+        onMounted(() => {
+            startCamera();
+            fetchLogs();
+            startAutoDetection();
+        });
+
         const analyzeMember = (rawMember) => {
-            let result = { ...rawMember };
-            result.daysAbsent = rawMember.lastVisitDays;
-            result.frequency = (Math.random() * 5 + 1).toFixed(1);
-            result.totalVisits = rawMember.visits + 1;
+            let result = {
+                id: rawMember.id,
+                name: rawMember.full_name,
+                avatar: rawMember.avatar || 'https://ui-avatars.com/api/?name=' + rawMember.full_name,
+                pack: rawMember.package_name,
+                expiry: rawMember.end_date,
+                daysAbsent: 0, // Should be calculated if needed
+                frequency: (Math.random() * 5 + 1).toFixed(1),
+                totalVisits: 0 // Should be fetched if needed
+            };
 
-            if (result.daysAbsent <= 3) {
+            // Logic cảnh báo
+            const daysLeft = Math.ceil((new Date(rawMember.end_date) - new Date()) / (1000 * 60 * 60 * 24));
+            
+            if (daysLeft > 7) {
                 result.churnClass = 'safe-bg';
                 result.churnIcon = 'fa-circle-check';
                 result.churnLabel = 'THÀNH VIÊN TÍCH CỰC';
-                result.aiMessage = "Khách hàng duy trì tập luyện tốt.";
+                result.aiMessage = "Gói tập còn hạn dài. Chúc bạn tập luyện vui vẻ!";
                 result.isChurnRisk = false;
-            } else if (result.daysAbsent <= 14) {
+            } else if (daysLeft > 0) {
                 result.churnClass = 'warning-bg';
                 result.churnIcon = 'fa-triangle-exclamation';
-                result.churnLabel = 'CẦN QUAN TÂM';
-                result.aiMessage = `Đã vắng ${result.daysAbsent} ngày.`;
+                result.churnLabel = 'SẮP HẾT HẠN';
+                result.aiMessage = `Gói tập chỉ còn ${daysLeft} ngày. Hãy gia hạn sớm!`;
                 result.isChurnRisk = true;
             } else {
                 result.churnClass = 'danger-bg';
                 result.churnIcon = 'fa-skull-crossbones';
-                result.churnLabel = 'NGUY CƠ BỎ TẬP';
-                result.aiMessage = "Cảnh báo đỏ.";
+                result.churnLabel = 'ĐÃ HẾT HẠN';
+                result.aiMessage = "Gói tập đã hết hạn. Vui lòng gia hạn để tiếp tục.";
                 result.isChurnRisk = true;
             }
             return result;
         };
 
-        // --- 3. METHODS (XỬ LÝ SỰ KIỆN) ---
-
-        // Xử lý khi có dữ liệu khách (từ Camera hoặc nhập tay)
-       const processCheckIn = (user) => {
-            member.value = analyzeMember(user);
-
-            const now = new Date();
-            const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
-            recentLogs.unshift({ time: timeStr, name: user.name });
-            if (recentLogs.length > 5) recentLogs.pop();
-
-            checkInCount.value++;
-            activeNow.value++;
-            searchQuery.value = '';
+        const processCheckIn = async (user) => {
+            try {
+                const res = await axios.post('admin/check-in/add-data', {
+                    member_id: user.id,
+                    check_in_type: 'FaceID'
+                });
+                if (res.data.status) {
+                    member.value = analyzeMember(user);
+                    fetchLogs();
+                }
+            } catch (err) {
+                toast.error('Lỗi khi ghi nhận check-in');
+            }
         };
 
-        // [TODO] Hàm này sau này sẽ gọi API Check Face
-        const simulateFaceID = () => {
-            // Reset trạng thái để tạo hiệu ứng "Đang quét lại"
+        const simulateFaceID = async () => {
             member.value = null;
-
-            console.log("Connecting to Camera RTSP...");
-            // TODO: Kết nối WebSocket hoặc API tại đây
-            // const response = await axios.post('/api/face-recognize');
-
-            // Giả lập độ trễ mạng 1.5s
-            setTimeout(() => {
-                const randomUser = mockDB[Math.floor(Math.random() * mockDB.length)];
-                processCheckIn(randomUser);
-            }, 1500);
+            // Mocking a search for a random member to simulate FaceID
+            try {
+                const res = await axios.get('admin/thanh-vien/get-data');
+                const list = res.data.data.data;
+                if (list.length > 0) {
+                    const randomUser = list[Math.floor(Math.random() * list.length)];
+                    setTimeout(() => {
+                        processCheckIn(randomUser);
+                    }, 1000);
+                } else {
+                    toast.warning("Hệ thống chưa có thành viên nào");
+                }
+            } catch (err) {
+                console.error(err);
+            }
         };
 
-        const manualCheckIn = () => {
-            const found = mockDB.find(u =>
-                u.id.includes(searchQuery.value) || u.name.includes(searchQuery.value)
-            );
-            found ? processCheckIn(found) : alert('Không tìm thấy!');
+        const manualCheckIn = async () => {
+            try {
+                const res = await axios.get('admin/check-in/search-member', {
+                    params: { query: searchQuery.value }
+                });
+                if (res.data.status) {
+                    processCheckIn(res.data.data);
+                } else {
+                    toast.error(res.data.message);
+                }
+            } catch (err) {
+                toast.error('Lỗi khi tìm kiếm thành viên');
+            }
         };
 
         const resetScan = () => {
@@ -269,17 +353,13 @@ export default {
         };
 
         const sendZaloMsg = (m) => {
-            // TODO: Gọi Zalo OA API
-            // await axios.post('/api/zalo/send', { phone: m.phone, msg: m.aiMessage });
-            alert(`[API CALL] Đã gửi tin nhắn Zalo giữ chân khách hàng tới: ${m.name}`);
+            toast.info(`Đã gửi tin nhắn Zalo giữ chân tới: ${m.name}`);
         };
 
-        // Helper Functions cho UI
         const getZoneColor = (p) => p > 80 ? 'bg-danger' : (p > 50 ? 'bg-warning' : 'bg-success');
         const getZoneStatus = (p) => p > 80 ? 'Full' : (p > 50 ? 'Medium' : 'Empty');
 
-        // --- 4. RETURN (TRẢ BIẾN VỀ TEMPLATE) ---
-         return {
+        return {
             videoRef,
             searchQuery,
             member,
@@ -287,6 +367,9 @@ export default {
             activeNow,
             zones,
             recentLogs,
+            logCurrentPage,
+            logTotalPages,
+            changeLogPage,
             simulateFaceID,
             manualCheckIn,
             resetScan,

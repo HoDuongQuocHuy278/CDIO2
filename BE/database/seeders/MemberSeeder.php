@@ -11,60 +11,48 @@ class MemberSeeder extends Seeder
 
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('members')->truncate();
-        DB::table('members')->insert([
-            [
-                'full_name' => 'Nguyễn Văn An',
-                'email' => 'an.nguyen@gmail.com',
-                'phone' => '0901234567',
-                'address' => 'Hà Nội',
-                'avatar' => 'avatars/an.png',
-                'status' => 1,
-                'service_id' => 1,
-                'service_name' => 1,
-                'package_name' => 'Premium',
-                'package_price' => 1,
-                'package_duration' => 6,
-                'start_date' => '2026-01-15',
-                'end_date' => '2026-07-15',
-                'absent_days' => 1, // ngày vắng mặt
-                'warning_level' => 0,
-            ],
-            [
-                'full_name' => 'Trần Thị Bình',
-                'email' => 'binh.tran@gmail.com',
-                'phone' => '0912345678',
-                'address' => 'TP HCM',
-                'avatar' => 'avatars/binh.png',
-                'status' => 1,
-                'package_name' => 'Standard',
-                'service_name' => 2,
-                'package_price' => 2,
-                'service_id' => 2,
-                'package_duration' => 1,
-                'start_date' => '2026-04-01',
-                'end_date' => '2026-05-01',
-                'absent_days' => 8,
-                'warning_level' => 1,
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            ],
-            [
-                'full_name' => 'Lê Hoàng Cường',
-                'email' => 'cuong.gym@hotmail.com',
-                'phone' => '0988777666',
-                'address' => 'Đà Nẵng',
-                'avatar' => 'avatars/cuong.png',
+        $names = [
+            'Nguyễn Văn An', 'Trần Thị Bình', 'Lê Hoàng Cường', 'Phạm Minh Đức', 'Vũ Thị Hoa',
+            'Đặng Văn Hùng', 'Bùi Thị Lan', 'Ngô Văn Nam', 'Đỗ Thị Phượng', 'Hoàng Văn Quý',
+            
+        ];
+
+        $packages = [
+            ['name' => 'Gói tập Gym 1 tháng', 'price' => 500000, 'duration' => 1, 'service_id' => 1, 'service_name' => 'Gói tập Gym'],
+            ['name' => 'PT cá nhân 12 buổi', 'price' => 3000000, 'duration' => 1, 'service_id' => 2, 'service_name' => 'PT'],
+            ['name' => 'Yoga cơ bản', 'price' => 800000, 'duration' => 1, 'service_id' => 3, 'service_name' => 'Yoga'],
+            ['name' => 'Premium', 'price' => 2000000, 'duration' => 6, 'service_id' => 1, 'service_name' => 'Gói tập Gym'],
+            ['name' => 'VIP 12 Tháng', 'price' => 3500000, 'duration' => 12, 'service_id' => 1, 'service_name' => 'Gói tập Gym'],
+        ];
+
+        foreach ($names as $index => $name) {
+            $package = $packages[array_rand($packages)];
+            $startDate = date('Y-m-d', strtotime('-' . rand(0, 30) . ' days'));
+            $endDate = date('Y-m-d', strtotime('+' . $package['duration'] . ' months', strtotime($startDate)));
+
+            DB::table('members')->insert([
+                'full_name' => $name,
+                'email' => 'user' . ($index + 1) . '@example.com',
+                'phone' => '09' . str_pad(rand(0, 99999999), 8, '0', STR_PAD_LEFT),
+                'address' => 'Thành phố ' . ($index + 1),
+                'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&background=random',
                 'status' => 1,
-                'package_price' => 3,
-                'service_name' => 3,
-                'service_id' => 3,
-                'package_name' => 'VIP',
-                'package_duration' => 12,
-                'start_date' => '2025-01-20',
-                'end_date' => '2026-01-20',
-                'absent_days' => 18,
-                'warning_level' => 2,
-            ],
-        ]);
+                'service_id' => $package['service_id'],
+                'service_name' => $package['service_name'],
+                'package_name' => $package['name'],
+                'package_price' => $package['price'],
+                'package_duration' => $package['duration'],
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'absent_days' => rand(0, 20),
+                'warning_level' => rand(0, 2),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 }

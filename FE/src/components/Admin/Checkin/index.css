@@ -448,6 +448,7 @@
     opacity: 0;
     transform: scale(0.9);
 }
+
 .camera-feed {
     position: relative;
     width: 100%;

@@ -107,24 +107,52 @@
                     </tbody>
                 </table>
 
-                <div class="pagination-container">
+                <div class="pagination-container" v-if="totalPages > 1">
                     <div class="pagination-info">
-                        Hiển thị <b>{{ filteredInvoices.length }}</b> kết quả
+                      Trang <b>{{ currentPage }}</b> / <b>{{ totalPages }}</b> (Tổng <b>{{ totalRecords }}</b> hóa đơn)
                     </div>
                     <div class="pagination-group">
-                        <button class="page-btn prev disabled">
+                        <button class="page-btn" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">
                             <i class="fa-solid fa-chevron-left"></i>
                         </button>
 
-                        <button class="page-btn active">1</button>
-                        <button class="page-btn">2</button>
-                        <button class="page-btn">3</button>
-                        <button class="page-btn">...</button>
+                        <button 
+                          v-for="page in totalPages" 
+                          :key="page" 
+                          class="page-btn" 
+                          :class="{ active: currentPage === page }"
+                          @click="changePage(page)"
+                        >
+                          {{ page }}
+                        </button>
 
-                        <button class="page-btn next">
+                        <button class="page-btn" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
                             <i class="fa-solid fa-chevron-right"></i>
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    <!-- CREATE MODAL -->
+    <div class="modal fade" id="createInvoiceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tạo hóa đơn mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input v-model="create_invoice.customer" class="form-control mb-2" placeholder="Khách hàng" />
+                    <input v-model="create_invoice.amount" type="number" class="form-control mb-2" placeholder="Số tiền" />
+                    <select v-model="create_invoice.method" class="form-control mb-2">
+                        <option value="Chuyển khoản">Chuyển khoản</option>
+                        <option value="Tiền mặt">Tiền mặt</option>
+                        <option value="Thẻ tín dụng">Thẻ tín dụng</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" @click="addInvoice" data-bs-dismiss="modal">Lưu</button>
                 </div>
             </div>
         </div>
@@ -167,57 +195,107 @@
             </div>
         </div>
     </div>
-
+</div>
 </template>
 
 <script>
-import './index.css'
+import './index.css';
+import axios from '@/axios';
+
 export default {
     data() {
         return {
             stats: {
-                totalInvoices: 128,
-                totalRevenue: 84500000,
-                paidCount: 115,
-                pendingCount: 13
+                totalInvoices: 0,
+                totalRevenue: 0,
+                paidCount: 0,
+                pendingCount: 0
             },
             filters: {
                 keyword: '',
                 status: ''
             },
             selectedInvoice: null,
-            invoices: [
-                { id: 1, code: '#INV-001', customer: 'Nguyễn Văn An', staff: 'Phạm Thị Mai', date: '14/01/2026', amount: 1650000, method: 'Chuyển khoản', status: 'paid' },
-                { id: 2, code: '#INV-002', customer: 'Trần Thị Bình', staff: 'Phạm Thị Mai', date: '14/01/2026', amount: 1400000, method: 'Tiền mặt', status: 'paid' },
-                { id: 3, code: '#INV-003', customer: 'Lê Hoàng Cường', staff: 'Lê Văn Tú', date: '14/01/2026', amount: 380000, method: 'Thẻ tín dụng', status: 'paid' },
-                { id: 4, code: '#INV-004', customer: 'Phạm Thu Dung', staff: 'Phạm Thị Mai', date: '14/01/2026', amount: 500000, method: 'Chuyển khoản', status: 'pending' },
-                { id: 5, code: '#INV-005', customer: 'Võ Minh Em', staff: 'Lê Văn Tú', date: '13/01/2026', amount: 3000000, method: 'Chuyển khoản', status: 'paid' },
-                { id: 6, code: '#INV-006', customer: 'Đặng Ngọc Nhi', staff: 'Phạm Thị Mai', date: '12/01/2026', amount: 7500000, method: 'Tiền mặt', status: 'cancel' },
-            ]
+            invoices: [],
+            currentPage: 1,
+            totalPages: 1,
+            totalRecords: 0,
+            create_invoice: {
+                code: "#INV-" + Math.floor(Math.random() * 1000),
+                customer: "",
+                staff: "Admin",
+                date: new Date().toISOString().split("T")[0],
+                amount: 0,
+                method: "Chuyển khoản",
+                status: "pending"
+            }
         }
     },
     computed: {
         filteredInvoices() {
             return this.invoices.filter(inv => {
-                const matchKeyword = inv.customer.toLowerCase().includes(this.filters.keyword.toLowerCase()) ||
-                    inv.code.toLowerCase().includes(this.filters.keyword.toLowerCase());
+                const matchKeyword = (inv.customer && inv.customer.toLowerCase().includes(this.filters.keyword.toLowerCase())) ||
+                    (inv.code && inv.code.toLowerCase().includes(this.filters.keyword.toLowerCase()));
                 const matchStatus = this.filters.status === '' || inv.status === this.filters.status;
                 return matchKeyword && matchStatus;
             });
         }
     },
+    mounted() {
+        this.getListInvoices();
+    },
     methods: {
+        getListInvoices(page = 1) {
+            axios.get(`admin/hoa-don/get-data?page=${page}`)
+                .then((res) => {
+                    this.invoices = res.data.data.data;
+                    this.currentPage = res.data.data.current_page;
+                    this.totalPages = res.data.data.last_page;
+                    this.totalRecords = res.data.data.total;
+                    this.updateStats();
+                });
+        },
+        changePage(page) {
+            if (page >= 1 && page <= this.totalPages) {
+                this.getListInvoices(page);
+            }
+        },
+        updateStats() {
+            // Stats should ideally come from backend for total accuracy
+            this.stats.totalInvoices = this.totalRecords;
+            this.stats.totalRevenue = this.invoices.reduce((sum, inv) => sum + Number(inv.amount), 0);
+            this.stats.paidCount = this.invoices.filter(inv => inv.status === 'paid').length;
+            this.stats.pendingCount = this.invoices.filter(inv => inv.status === 'pending').length;
+        },
+        addInvoice() {
+            axios.post('admin/hoa-don/add-data', this.create_invoice)
+                .then((res) => {
+                    if (res.data.status) {
+                        this.$toast.success(res.data.message);
+                        this.create_invoice = {
+                            code: "#INV-" + Math.floor(Math.random() * 1000),
+                            customer: "",
+                            staff: "Admin",
+                            date: new Date().toISOString().split("T")[0],
+                            amount: 0,
+                            method: "Chuyển khoản",
+                            status: "pending"
+                        };
+                        this.getListInvoices(this.currentPage);
+                    }
+                });
+        },
         formatCurrency(value) {
             return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
         },
-        getInitials(name) { return name.split(' ').pop().charAt(0).toUpperCase(); },
+        getInitials(name) { return name ? name.split(' ').pop().charAt(0).toUpperCase() : "?"; },
         getRandomColor(index) {
             const colors = ['bg-blue', 'bg-purple', 'bg-green', 'bg-orange'];
             return colors[index % colors.length];
         },
         getPaymentIcon(method) {
-            if (method.includes('Tiền mặt')) return 'fa-solid fa-money-bill-wave text-success';
-            if (method.includes('Chuyển khoản')) return 'fa-solid fa-qrcode text-primary';
+            if (method && method.includes('Tiền mặt')) return 'fa-solid fa-money-bill-wave text-success';
+            if (method && method.includes('Chuyển khoản')) return 'fa-solid fa-qrcode text-primary';
             return 'fa-regular fa-credit-card text-warning';
         },
         getStatusClass(status) {

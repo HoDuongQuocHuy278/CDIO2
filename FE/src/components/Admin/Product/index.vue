@@ -13,7 +13,7 @@
     <div class="stat-grid">
       <div class="stat-card">
         <p>Tổng sản phẩm</p>
-        <h3>{{ products.length }}</h3>
+        <h3>{{ totalRecords }}</h3>
       </div>
       <div class="stat-card">
         <p>Tổng tồn kho</p>
@@ -43,29 +43,28 @@
       </button>
     </div>
 
-    <!-- PRODUCT GRID -->
     <div class="product-grid">
       <div class="product-card" v-for="item in filteredProducts" :key="item.id">
 
         <div class="product-header">
           <div class="product-icon">📦</div>
-          <span :class="['badge', item.stock < 20 ? 'danger' : 'success']">
-            {{ item.stock < 20 ? 'Sắp hết' : 'Còn hàng' }} </span>
+          <span :class="['badge', item.so_luong < 20 ? 'danger' : 'success']">
+            {{ item.so_luong < 20 ? 'Sắp hết' : 'Còn hàng' }} </span>
         </div>
 
-        <h4>{{ item.name }}</h4>
-        <p class="category">{{ item.category }}</p>
+        <h4>{{ item.ten_san_pham }}</h4>
+        <p class="category">{{ item.danh_muc }}</p>
 
-        <div class="price">{{ item.price }}k <span>/ sản phẩm</span></div>
+        <div class="price">{{ formatCurrency(item.gia_ban) }} <span>/ sản phẩm</span></div>
 
         <div class="stock">
           <span>Tồn kho</span>
-          <span>{{ item.stock }} sản phẩm</span>
+          <span>{{ item.so_luong }} sản phẩm</span>
         </div>
 
         <div class="progress">
           <div class="progress-bar" :style="{ width: stockPercent(item) + '%' }"
-            :class="item.stock < 20 ? 'red' : 'green'"></div>
+            :class="item.so_luong < 20 ? 'red' : 'green'"></div>
         </div>
 
         <div class="card-actions">
@@ -80,6 +79,32 @@
       </div>
     </div>
 
+    <!-- PAGINATION -->
+    <div class="pagination-container mt-4" v-if="totalPages > 1">
+        <div class="pagination-info">
+          Trang <strong>{{ currentPage }}</strong> / {{ totalPages }} (Tổng {{ totalRecords }} sản phẩm)
+        </div>
+        <div class="pagination-group">
+          <button class="page-btn" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+  
+          <button 
+            v-for="page in totalPages" 
+            :key="page" 
+            class="page-btn" 
+            :class="{ active: currentPage === page }"
+            @click="changePage(page)"
+          >
+            {{ page }}
+          </button>
+  
+          <button class="page-btn" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+    </div>
+
     <!-- MODALS -->
     <!-- ADD -->
     <div class="modal fade" id="addProductModal">
@@ -90,10 +115,10 @@
             <button class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <input v-model="newProduct.name" placeholder="Tên sản phẩm" />
-            <input v-model="newProduct.category" placeholder="Danh mục" />
-            <input type="number" v-model="newProduct.price" placeholder="Giá (k)" />
-            <input type="number" v-model="newProduct.stock" placeholder="Tồn kho" />
+            <input v-model="create_san_pham.ten_san_pham" placeholder="Tên sản phẩm" />
+            <input v-model="create_san_pham.danh_muc" placeholder="Danh mục" />
+            <input type="number" v-model="create_san_pham.gia_ban" placeholder="Giá (k)" />
+            <input type="number" v-model="create_san_pham.so_luong" placeholder="Tồn kho" />
           </div>
           <div class="modal-footer">
             <button data-bs-dismiss="modal">Hủy</button>
@@ -112,10 +137,10 @@
             <button class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <input v-model="editProduct.name" />
-            <input v-model="editProduct.category" />
-            <input type="number" v-model="editProduct.price" />
-            <input type="number" v-model="editProduct.stock" />
+            <input v-model="edit_san_pham.ten_san_pham" />
+            <input v-model="edit_san_pham.danh_muc" />
+            <input type="number" v-model="edit_san_pham.gia_ban" />
+            <input type="number" v-model="edit_san_pham.so_luong" />
           </div>
           <div class="modal-footer">
             <button data-bs-dismiss="modal">Hủy</button>
@@ -132,7 +157,7 @@
           <div class="modal-body text-center">
             <i class="fa-solid fa-trash delete-icon"></i>
             <h4>Xóa sản phẩm?</h4>
-            <p>{{ deleteProduct?.name }} sẽ bị xóa</p>
+            <p>{{ delete_san_pham?.ten_san_pham }} sẽ bị xóa</p>
           </div>
           <div class="modal-footer">
             <button data-bs-dismiss="modal">Hủy</button>
@@ -146,59 +171,96 @@
 </template>
 <script>
 import "./index.css";
+import axios from '@/axios';
+
 export default {
   data() {
     return {
-      products: [
-        { id: 1, name: "Whey Protein 2kg", category: "Thực phẩm bổ sung", price: 1200, stock: 45 },
-        { id: 2, name: "BCAA 300g", category: "Thực phẩm bổ sung", price: 450, stock: 12 },
-        { id: 3, name: "Găng tay tập gym", category: "Phụ kiện", price: 150, stock: 78 },
-      ],
-      newProduct: { name: "", category: "", price: 0, stock: 0 },
-      editProduct: {},
-      deleteProduct: null,
-      filterCategory: ""
+      list_san_pham: [],
+      create_san_pham: { ten_san_pham: "", danh_muc: "Thực phẩm bổ sung", gia_ban: 0, so_luong: 0, status: 1 },
+      edit_san_pham: {},
+      delete_san_pham: null,
+      filterCategory: "",
+      currentPage: 1,
+      totalPages: 1,
+      totalRecords: 0
     };
   },
-
   computed: {
     filteredProducts() {
       return this.filterCategory
-        ? this.products.filter(p => p.category === this.filterCategory)
-        : this.products;
+        ? this.list_san_pham.filter(p => p.danh_muc === this.filterCategory)
+        : this.list_san_pham;
     },
     totalStock() {
-      return this.products.reduce((s, p) => s + p.stock, 0);
+      return this.list_san_pham.reduce((s, p) => s + Number(p.so_luong), 0);
     },
     totalValue() {
-      return this.products.reduce((s, p) => s + p.price * p.stock, 0) / 1000;
+      const total = this.list_san_pham.reduce((s, p) => s + Number(p.gia_ban) * Number(p.so_luong), 0);
+      return new Intl.NumberFormat('vi-VN').format(total);
     },
     lowStockCount() {
-      return this.products.filter(p => p.stock < 20).length;
+      return this.list_san_pham.filter(p => p.so_luong < 20).length;
     }
   },
-
+  mounted() {
+    this.getListSanPham();
+  },
   methods: {
+    formatCurrency(value) {
+      return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value * 1000);
+    },
     stockPercent(item) {
-      return Math.min((item.stock / 100) * 100, 100);
+      return Math.min((item.so_luong / 100) * 100, 100);
+    },
+    getListSanPham(page = 1) {
+        axios.get(`admin/san-pham/get-data?page=${page}`)
+            .then((res) => {
+                this.list_san_pham = res.data.data.data;
+                this.currentPage = res.data.data.current_page;
+                this.totalPages = res.data.data.last_page;
+                this.totalRecords = res.data.data.total;
+            });
+    },
+    changePage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.getListSanPham(page);
+      }
     },
     addProduct() {
-      this.products.push({ ...this.newProduct, id: Date.now() });
-      this.newProduct = { name: "", category: "", price: 0, stock: 0 };
+        axios.post('admin/san-pham/add-data', this.create_san_pham)
+            .then((res) => {
+                if (res.data.status) {
+                    this.$toast.success(res.data.message);
+                    this.create_san_pham = { ten_san_pham: "", danh_muc: "Thực phẩm bổ sung", gia_ban: 0, so_luong: 0, status: 1 };
+                    this.getListSanPham(this.currentPage);
+                }
+            });
     },
     openEdit(item) {
-      this.editProduct = { ...item };
+      this.edit_san_pham = { ...item };
     },
     updateProduct() {
-      const i = this.products.findIndex(p => p.id === this.editProduct.id);
-      this.products.splice(i, 1, this.editProduct);
+        axios.post('admin/san-pham/update', this.edit_san_pham)
+            .then((res) => {
+                if (res.data.status) {
+                    this.$toast.success(res.data.message);
+                    this.getListSanPham(this.currentPage);
+                }
+            });
     },
     openDelete(item) {
-      this.deleteProduct = item;
+      this.delete_san_pham = item;
     },
     removeProduct() {
-      this.products = this.products.filter(p => p.id !== this.deleteProduct.id);
-    }
+        axios.post('admin/san-pham/delete', this.delete_san_pham)
+            .then((res) => {
+                if (res.data.status) {
+                    this.$toast.success(res.data.message);
+                    this.getListSanPham(this.currentPage);
+                }
+            });
+    },
   }
 };
 </script>

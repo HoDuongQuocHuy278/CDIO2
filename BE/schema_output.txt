@@ -1,0 +1,183 @@
+Array
+(
+    [0] => stdClass Object
+        (
+            [Field] => id
+            [Type] => bigint(20) unsigned
+            [Null] => NO
+            [Key] => PRI
+            [Default] => 
+            [Extra] => auto_increment
+        )
+
+    [1] => stdClass Object
+        (
+            [Field] => full_name
+            [Type] => varchar(255)
+            [Null] => NO
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [2] => stdClass Object
+        (
+            [Field] => email
+            [Type] => varchar(255)
+            [Null] => NO
+            [Key] => UNI
+            [Default] => 
+            [Extra] => 
+        )
+
+    [3] => stdClass Object
+        (
+            [Field] => phone
+            [Type] => varchar(255)
+            [Null] => NO
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [4] => stdClass Object
+        (
+            [Field] => address
+            [Type] => varchar(255)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [5] => stdClass Object
+        (
+            [Field] => avatar
+            [Type] => varchar(255)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [6] => stdClass Object
+        (
+            [Field] => status
+            [Type] => tinyint(4)
+            [Null] => NO
+            [Key] => 
+            [Default] => 1
+            [Extra] => 
+        )
+
+    [7] => stdClass Object
+        (
+            [Field] => service_id
+            [Type] => bigint(20)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [8] => stdClass Object
+        (
+            [Field] => package_name
+            [Type] => varchar(255)
+            [Null] => NO
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [9] => stdClass Object
+        (
+            [Field] => service_name
+            [Type] => varchar(255)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [10] => stdClass Object
+        (
+            [Field] => package_price
+            [Type] => int(11)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [11] => stdClass Object
+        (
+            [Field] => package_duration
+            [Type] => int(11)
+            [Null] => NO
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [12] => stdClass Object
+        (
+            [Field] => start_date
+            [Type] => date
+            [Null] => NO
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [13] => stdClass Object
+        (
+            [Field] => end_date
+            [Type] => date
+            [Null] => NO
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [14] => stdClass Object
+        (
+            [Field] => absent_days
+            [Type] => int(11)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [15] => stdClass Object
+        (
+            [Field] => warning_level
+            [Type] => tinyint(4)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [16] => stdClass Object
+        (
+            [Field] => created_at
+            [Type] => timestamp
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [17] => stdClass Object
+        (
+            [Field] => updated_at
+            [Type] => timestamp
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+)

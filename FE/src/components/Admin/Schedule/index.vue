@@ -131,18 +131,20 @@
 
 <script>
 import "./index.css";
+import axios from '@/axios';
+
 export default {
   name: "SchedulePT",
 
   data() {
     return {
       showModal: false,
-      showDeleteModal: false, // ✅ THÊM
-      editingEvent: null, // ✅ THÊM
-      deletingEvent: null, // ✅ THÊM
+      showDeleteModal: false,
+      editingEvent: null,
+      deletingEvent: null,
 
       days: ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"],
-      hours: Array.from({ length: 14 }, (_, i) => i + 8), // 8 → 21
+      hours: Array.from({ length: 14 }, (_, i) => i + 8),
       form: {
         pt: "",
         customer: "",
@@ -150,43 +152,19 @@ export default {
         start: 8,
         end: 9,
       },
-      events: [
-        {
-          id: 1,
-          pt: "PT An",
-          customer: "Nguyễn Văn B",
-          day: "Thứ 3",
-          start: 8,
-          end: 12,
-        },
-        {
-          id: 2,
-          pt: "PT An",
-          customer: "Nguyễn Văn B",
-          day: "Thứ 2",
-          start: 13,
-          end: 16,
-        },
-        {
-          id: 3,
-          pt: "PT An",
-          customer: "Nguyễn Văn B",
-          day: "CN",
-          start: 16,
-          end: 21,
-        },
-      ],
-
-      newEvent: {
-        pt: "",
-        day: "Thứ 2",
-        start: 8,
-        end: 9,
-      },
+      events: [],
     };
   },
-
+  mounted() {
+    this.getListSchedule();
+  },
   methods: {
+    getListSchedule() {
+        axios.get('admin/lich-lam/get-data')
+            .then((res) => {
+                this.events = res.data.data;
+            });
+    },
     openAdd() {
       this.editingEvent = null;
       this.form = {
@@ -211,21 +189,37 @@ export default {
     },
 
     saveEvent() {
-      if (this.editingEvent) {
-        Object.assign(this.editingEvent, this.form);
-      } else {
-        this.events.push({
-          ...this.form,
-          id: Date.now(),
-        });
-      }
-      this.closeModal();
+        if (this.editingEvent) {
+            axios.post('admin/lich-lam/update', this.form)
+                .then((res) => {
+                    if (res.data.status) {
+                        this.$toast.success(res.data.message);
+                        this.getListSchedule();
+                        this.closeModal();
+                    }
+                });
+        } else {
+            axios.post('admin/lich-lam/add-data', this.form)
+                .then((res) => {
+                    if (res.data.status) {
+                        this.$toast.success(res.data.message);
+                        this.getListSchedule();
+                        this.closeModal();
+                    }
+                });
+        }
     },
 
     confirmDelete() {
-      this.events = this.events.filter((e) => e.id !== this.deletingEvent.id);
-      this.showDeleteModal = false;
-      this.deletingEvent = null;
+        axios.post('admin/lich-lam/delete', this.deletingEvent)
+            .then((res) => {
+                if (res.data.status) {
+                    this.$toast.success(res.data.message);
+                    this.getListSchedule();
+                    this.showDeleteModal = false;
+                    this.deletingEvent = null;
+                }
+            });
     },
 
     closeModal() {
@@ -248,22 +242,6 @@ export default {
       return {
         height: (event.end - event.start) * 60 + "px",
       };
-    },
-
-    addEvent() {
-      this.events.push({
-        ...this.newEvent,
-        id: Date.now(),
-      });
-
-      this.newEvent = {
-        pt: "",
-        day: "Thứ 2",
-        start: 8,
-        end: 9,
-      };
-
-      this.showModal = false;
     },
   },
 };

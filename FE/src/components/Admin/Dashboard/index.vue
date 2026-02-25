@@ -23,7 +23,7 @@
                 </div>
                 <div class="stat-info">
                     <span class="stat-label">{{ item.label }}</span>
-                    <h3 class="stat-value">{{ item.value }}</h3>
+                    <h3 class="stat-value">{{ formatValue(item) }}</h3>
                 </div>
                 <div class="stat-trend" :class="item.trend > 0 ? 'up' : 'down'">
                     <i :class="item.trend > 0 ? 'bx bx-up-arrow-alt' : 'bx bx-down-arrow-alt'"></i>
@@ -77,6 +77,7 @@
 
 <script>
 import './index.css'
+import axios from '@/axios';
 import { defineComponent, ref, onMounted } from 'vue';
 import {
     Chart as ChartJS,
@@ -155,29 +156,23 @@ export default defineComponent({
             interaction: { intersect: false, mode: 'index' },
         };
 
-        // --- Hàm giả lập gọi API (Sau này bạn thay bằng axios.get) ---
+        // --- Hàm gọi API thực tế ---
         const fetchDashboardData = async () => {
             try {
-                // Ví dụ: const response = await axios.get('/api/dashboard');
-                // Giả lập độ trễ mạng
-                await new Promise(resolve => setTimeout(resolve, 500));
+                const response = await axios.get('admin/dashboard/stats');
+                const data = response.data.data;
 
                 // 1. Gán dữ liệu Stats
-                stats.value = [
-                    { label: 'Tổng thành viên', value: '1,234', icon: 'bx bxs-group', colorClass: 'blue', trend: 12 },
-                    { label: 'Đang hoạt động', value: '892', icon: 'bx bx-run', colorClass: 'green', trend: 8 },
-                    { label: 'Doanh thu tháng', value: '67tr', icon: 'bx bxs-dollar-circle', colorClass: 'purple', trend: 23 },
-                    { label: 'Check-in hôm nay', value: '125', icon: 'bx bx-qr-scan', colorClass: 'orange', trend: -5 },
-                ];
+                stats.value = data.stats;
 
                 // 2. Gán dữ liệu Chart Doanh Thu
                 revenueChartData.value = {
-                    labels: ['Thg 1', 'Thg 2', 'Thg 3', 'Thg 4', 'Thg 5', 'Thg 6'],
+                    labels: data.revenueChart.labels,
                     datasets: [{
-                        label: 'Doanh thu (triệu VNĐ)',
+                        label: 'Doanh thu (k VNĐ)',
                         backgroundColor: '#3b82f6',
                         hoverBackgroundColor: '#2563eb',
-                        data: [40, 59, 45, 81, 56, 95], // Dữ liệu từ BE sẽ vào đây
+                        data: data.revenueChart.data,
                         borderRadius: 6,
                         barThickness: 28,
                     }]
@@ -185,11 +180,10 @@ export default defineComponent({
 
                 // 3. Gán dữ liệu Chart Check-in
                 checkinChartData.value = {
-                    labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+                    labels: data.checkinChart.labels,
                     datasets: [{
                         label: 'Lượt khách',
                         borderColor: '#10b981',
-                        // Gradient function
                         backgroundColor: (context) => {
                             const ctx = context.chart.ctx;
                             const gradient = ctx.createLinearGradient(0, 0, 0, 300);
@@ -204,18 +198,14 @@ export default defineComponent({
                         pointHoverRadius: 6,
                         fill: true,
                         tension: 0.4,
-                        data: [85, 92, 78, 95, 110, 125, 98] // Dữ liệu từ BE sẽ vào đây
+                        data: data.checkinChart.data
                     }]
                 };
 
                 // 4. Gán dữ liệu Hoạt động gần đây
-                recentActivities.value = [
-                    { name: 'Nguyễn Văn An', action: 'Đã check-in tại cửa chính', time: '2 phút trước' },
-                    { name: 'Trần Thị Bình', action: 'Đăng ký gói Premium 6 tháng', time: '15 phút trước' },
-                    { name: 'Lê Hoàng Cường', action: 'Mua nước tăng lực', time: '23 phút trước' },
-                ];
+                recentActivities.value = data.recentActivity;
 
-                loaded.value = true; // Đánh dấu đã tải xong để hiển thị Chart
+                loaded.value = true;
             } catch (error) {
                 console.error("Lỗi tải dữ liệu:", error);
             }
@@ -226,6 +216,13 @@ export default defineComponent({
             fetchDashboardData();
         });
 
+        const formatValue = (item) => {
+            if (item.isCurrency) {
+                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.value * 1000);
+            }
+            return item.value;
+        };
+
         // Return các biến ra template
         return {
             loaded,
@@ -234,7 +231,8 @@ export default defineComponent({
             revenueChartData,
             checkinChartData,
             barChartOptions,
-            lineChartOptions
+            lineChartOptions,
+            formatValue
         };
     }
 });

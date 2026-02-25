@@ -4,16 +4,19 @@
     <!-- HEADER -->
     <div class="page-header">
       <div>
-        <h2>Quản lý dịch vụ</h2>
-        <p>Quản lý các dịch vụ tập luyện và chăm sóc khách hàng</p>
+        <h2><i class="fa-solid fa-gem me-2 text-primary"></i>Quản lý Dịch vụ</h2>
+        <p>Thiết lập gói tập, dịch vụ huấn luyện viên và tiện ích đi kèm</p>
       </div>
+      <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addServiceModal">
+        <i class="fa-solid fa-plus-circle"></i> Thêm dịch vụ
+      </button>
     </div>
 
     <!-- STATS -->
     <div class="stat-grid">
       <div class="stat-card">
         <p>Tổng dịch vụ</p>
-        <h3>{{ services.length }}</h3>
+        <h3>{{ list_dich_vu.length }}</h3>
       </div>
       <div class="stat-card success">
         <p>Đang hoạt động</p>
@@ -24,45 +27,46 @@
         <h3>{{ inactiveCount }}</h3>
       </div>
       <div class="stat-card">
-        <p>Bán chạy</p>
-        <h3>{{ hotService }}</h3>
+        <p>Gói bán chạy</p>
+        <h3 class="text-primary">{{ hotService }}</h3>
       </div>
     </div>
 
-    <!-- FILTER -->
+    <!-- FILTER BAR -->
     <div class="filter-bar">
-      <select v-model="filterType">
-        <option value="">Tất cả loại dịch vụ</option>
-        <option>Gói tập</option>
-        <option>PT</option>
-        <option>Yoga</option>
-        <option>Spa</option>
-      </select>
-
-      <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addServiceModal">
-        + Thêm dịch vụ
-      </button>
+      <div class="d-flex align-items-center gap-3">
+        <i class="fa-solid fa-filter text-muted"></i>
+        <select v-model="filterType" class="form-select shadow-none">
+            <option value="">Tất cả loại dịch vụ</option>
+            <option>Gói tập</option>
+            <option>PT</option>
+            <option>Yoga</option>
+            <option>Spa</option>
+        </select>
+      </div>
     </div>
 
-    <!-- SERVICE GRID -->
     <div class="service-grid">
       <div class="service-card" v-for="item in filteredServices" :key="item.id">
 
         <div class="service-header">
-          <div class="service-icon">💎</div>
-          <span :class="['badge', item.active ? 'success' : 'danger']">
-            {{ item.active ? 'Đang bán' : 'Ngưng' }}
+          <div class="service-icon">
+            <i :class="getServiceIcon(item.loai_dich_vu)"></i>
+          </div>
+          <span :class="['badge', item.status ? 'success' : 'danger']">
+            <i class="fa-solid" :class="item.status ? 'fa-check-circle' : 'fa-times-circle'"></i>
+            {{ item.status ? 'Đang bán' : 'Ngưng' }}
           </span>
         </div>
 
-        <h4>{{ item.name }}</h4>
-        <p class="type">{{ item.type }}</p>
+        <h4>{{ item.ten_dich_vu }}</h4>
+        <p class="type text-uppercase">{{ item.loai_dich_vu }}</p>
 
-        <div class="price">{{ item.price }}k</div>
+        <div class="price">{{ formatCurrency(item.gia_tien) }}</div>
 
         <div class="meta">
-          <span>⏱ {{ item.duration }}</span>
-          <span>🎟 {{ item.sessions }}</span>
+          <span><i class="fa-solid fa-calendar-days text-primary"></i> {{ item.thoi_han }}</span>
+          <span><i class="fa-solid fa-ticket text-primary"></i> {{ item.so_buoi }}</span>
         </div>
 
         <div class="card-actions">
@@ -70,73 +74,174 @@
             @click="openEdit(item)"
             data-bs-toggle="modal"
             data-bs-target="#editServiceModal">
-            Sửa
+            <i class="fa-solid fa-edit me-1"></i>Sửa
           </button>
           <button class="btn-delete"
             @click="openDelete(item)"
             data-bs-toggle="modal"
             data-bs-target="#deleteServiceModal">
-            Xóa
+            <i class="fa-solid fa-trash me-1"></i>Xóa
           </button>
         </div>
 
       </div>
     </div>
 
+    <!-- PAGINATION -->
+    <div class="pagination-container mt-4" v-if="totalPages > 1">
+        <div class="pagination-info">
+          Trang <strong>{{ currentPage }}</strong> / {{ totalPages }} (Tổng {{ totalRecords }} dịch vụ)
+        </div>
+        <div class="pagination-group">
+          <button class="page-btn" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+  
+          <button 
+            v-for="page in totalPages" 
+            :key="page" 
+            class="page-btn" 
+            :class="{ active: currentPage === page }"
+            @click="changePage(page)"
+          >
+            {{ page }}
+          </button>
+  
+          <button class="page-btn" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+    </div>
+
     <!-- ADD MODAL -->
-    <div class="modal fade" id="addServiceModal">
+    <div class="modal fade" id="addServiceModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content modal-custom">
-          <div class="modal-header gradient">
-            <h5>Thêm dịch vụ</h5>
-            <button class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content modern-modal">
+          <div class="modal-header-custom gradient">
+            <h5 class="modal-title-custom"><i class="fa-solid fa-plus-circle me-2"></i>Thêm dịch vụ mới</h5>
+            <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
-          <div class="modal-body">
-            <input v-model="newService.name" placeholder="Tên dịch vụ" />
-            <select v-model="newService.type">
-              <option>Gói tập</option>
-              <option>PT</option>
-              <option>Yoga</option>
-              <option>Spa</option>
-            </select>
-            <input type="number" v-model="newService.price" placeholder="Giá (k)" />
-            <input v-model="newService.duration" placeholder="Thời hạn" />
-            <input v-model="newService.sessions" placeholder="Số buổi" />
+          <div class="modal-body modal-body-custom">
+            <div class="input-group-custom">
+                <label class="input-label">Tên dịch vụ</label>
+                <input v-model="create_dich_vu.ten_dich_vu" class="input-field" placeholder="Ví dụ: Gói VIP 6 tháng" />
+            </div>
+
+            <div class="input-group-custom">
+                <label class="input-label">Loại dịch vụ</label>
+                <select v-model="create_dich_vu.loai_dich_vu" class="input-field">
+                  <option>Gói tập</option>
+                  <option>PT</option>
+                  <option>Yoga</option>
+                  <option>Spa</option>
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group-custom">
+                        <label class="input-label">Giá (VNĐ)</label>
+                        <input type="number" v-model="create_dich_vu.gia_tien" class="input-field" placeholder="Ví dụ: 500" />
+                        <small class="text-muted">Đơn vị: k (1k = 1.000đ)</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group-custom">
+                        <label class="input-label">Trạng thái</label>
+                        <select v-model="create_dich_vu.status" class="input-field">
+                            <option :value="1">Đang bán</option>
+                            <option :value="0">Ngưng bán</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group-custom">
+                        <label class="input-label">Thời hạn</label>
+                        <input v-model="create_dich_vu.thoi_han" class="input-field" placeholder="Ví dụ: 30 ngày" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group-custom">
+                        <label class="input-label">Số buổi</label>
+                        <input v-model="create_dich_vu.so_buoi" class="input-field" placeholder="Ví dụ: Không giới hạn" />
+                    </div>
+                </div>
+            </div>
           </div>
-          <div class="modal-footer">
-            <button data-bs-dismiss="modal">Hủy</button>
-            <button class="btn-primary" @click="addService" data-bs-dismiss="modal">
-              Lưu
-            </button>
+          <div class="modal-footer-custom">
+             <button class="btn-action secondary" data-bs-dismiss="modal">Hủy</button>
+             <button class="btn-action primary w-100" @click="addService" data-bs-dismiss="modal">
+               <i class="fa-solid fa-save me-2"></i>Lưu dịch vụ
+             </button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- EDIT MODAL -->
-    <div class="modal fade" id="editServiceModal">
+    <div class="modal fade" id="editServiceModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content modal-custom">
-          <div class="modal-header gradient">
-            <h5>Cập nhật dịch vụ</h5>
-            <button class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content modern-modal">
+          <div class="modal-header-custom gradient">
+            <h5 class="modal-title-custom"><i class="fa-solid fa-pen-to-square me-2"></i>Cập nhật dịch vụ</h5>
+            <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
-          <div class="modal-body">
-            <input v-model="editService.name" />
-            <select v-model="editService.type">
-              <option>Gói tập</option>
-              <option>PT</option>
-              <option>Yoga</option>
-              <option>Spa</option>
-            </select>
-            <input type="number" v-model="editService.price" />
-            <input v-model="editService.duration" />
-            <input v-model="editService.sessions" />
+          <div class="modal-body modal-body-custom">
+            <div class="input-group-custom">
+                <label class="input-label">Tên dịch vụ</label>
+                <input v-model="edit_dich_vu.ten_dich_vu" class="input-field" />
+            </div>
+
+            <div class="input-group-custom">
+                <label class="input-label">Loại dịch vụ</label>
+                <select v-model="edit_dich_vu.loai_dich_vu" class="input-field">
+                  <option>Gói tập</option>
+                  <option>PT</option>
+                  <option>Yoga</option>
+                  <option>Spa</option>
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group-custom">
+                        <label class="input-label">Giá (VNĐ)</label>
+                        <input type="number" v-model="edit_dich_vu.gia_tien" class="input-field" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group-custom">
+                        <label class="input-label">Trạng thái</label>
+                        <select v-model="edit_dich_vu.status" class="input-field">
+                            <option :value="1">Đang bán</option>
+                            <option :value="0">Ngưng bán</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group-custom">
+                        <label class="input-label">Thời hạn</label>
+                        <input v-model="edit_dich_vu.thoi_han" class="input-field" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group-custom">
+                        <label class="input-label">Số buổi</label>
+                        <input v-model="edit_dich_vu.so_buoi" class="input-field" />
+                    </div>
+                </div>
+            </div>
           </div>
-          <div class="modal-footer">
-            <button data-bs-dismiss="modal">Hủy</button>
-            <button class="btn-primary" @click="updateService" data-bs-dismiss="modal">
-              Cập nhật
+          <div class="modal-footer-custom">
+            <button class="btn-action secondary" data-bs-dismiss="modal">Hủy</button>
+            <button class="btn-action primary w-100" @click="updateService" data-bs-dismiss="modal">
+              <i class="fa-solid fa-check-circle me-2"></i>Cập nhật
             </button>
           </div>
         </div>
@@ -144,18 +249,20 @@
     </div>
 
     <!-- DELETE MODAL -->
-    <div class="modal fade" id="deleteServiceModal">
+    <div class="modal fade" id="deleteServiceModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content modal-custom">
-          <div class="modal-body text-center">
-            <div class="delete-icon">🗑️</div>
-            <h4>Xóa dịch vụ?</h4>
-            <p>{{ deleteService?.name }} sẽ bị xóa</p>
+        <div class="modal-content modern-modal">
+          <div class="modal-body modal-body-custom text-center py-5">
+            <div class="delete-avatar-container mb-4">
+                <i class="fa-solid fa-trash-can text-danger fs-1"></i>
+            </div>
+            <h4 class="fw-bold">Xác nhận xóa?</h4>
+            <p class="text-muted">Hành động này không thể hoàn tác. Dịch vụ <br><strong>{{ del_dich_vu?.ten_dich_vu }}</strong> sẽ bị xóa vĩnh viễn.</p>
           </div>
-          <div class="modal-footer">
-            <button data-bs-dismiss="modal">Hủy</button>
-            <button class="btn-danger" @click="removeService" data-bs-dismiss="modal">
-              Xóa
+          <div class="modal-footer-custom justify-content-center">
+            <button class="btn-action secondary px-4" data-bs-dismiss="modal">Hủy</button>
+            <button class="btn-action danger px-4" @click="removeService" data-bs-dismiss="modal">
+              Xác nhận xóa
             </button>
           </div>
         </div>
@@ -167,54 +274,108 @@
 
 <script>
 import "./index.css";
+import axios from '@/axios';
+
 export default {
   name: "ServiceManager",
   data() {
     return {
-      services: [
-        { id: 1, name: "Gói tập Gym 1 tháng", type: "Gói tập", price: 500, duration: "30 ngày", sessions: "Không giới hạn", active: true },
-        { id: 2, name: "PT cá nhân", type: "PT", price: 3000, duration: "1 tháng", sessions: "12 buổi", active: true },
-        { id: 3, name: "Yoga cơ bản", type: "Yoga", price: 800, duration: "1 tháng", sessions: "8 buổi", active: false }
-      ],
+      list_dich_vu: [],
+      create_dich_vu: {
+        ten_dich_vu: "",
+        loai_dich_vu: "Gói tập",
+        gia_tien: null,
+        thoi_han: "",
+        so_buoi: "",
+        status: 1
+      },
+      edit_dich_vu: {},
+      del_dich_vu: null,
       filterType: "",
-      newService: { name: "", type: "Gói tập", price: null, duration: "", sessions: "" },
-      editService: {},
-      deleteService: null
+      currentPage: 1,
+      totalPages: 1,
+      totalRecords: 0,
     };
   },
   computed: {
     filteredServices() {
       return this.filterType
-        ? this.services.filter(s => s.type === this.filterType)
-        : this.services;
+        ? this.list_dich_vu.filter(s => s.loai_dich_vu === this.filterType)
+        : this.list_dich_vu;
     },
     activeCount() {
-      return this.services.filter(s => s.active).length;
+      return this.list_dich_vu.filter(s => s.status).length;
     },
     inactiveCount() {
-      return this.services.filter(s => !s.active).length;
+      return this.list_dich_vu.filter(s => !s.status).length;
     },
     hotService() {
       return "PT cá nhân";
     }
   },
+  mounted() {
+    this.getListDichVu();
+  },
   methods: {
+    getListDichVu(page = 1) {
+        axios.get(`admin/dich-vu/get-data?page=${page}`)
+            .then((res) => {
+                this.list_dich_vu = res.data.data.data;
+                this.currentPage = res.data.data.current_page;
+                this.totalPages = res.data.data.last_page;
+                this.totalRecords = res.data.data.total;
+            });
+    },
+    changePage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.getListDichVu(page);
+      }
+    },
     addService() {
-      this.services.push({ ...this.newService, id: Date.now(), active: true });
-      this.newService = { name: "", type: "Gói tập", price: null, duration: "", sessions: "" };
+        axios.post('admin/dich-vu/add-data', this.create_dich_vu)
+            .then((res) => {
+                if (res.data.status) {
+                    this.$toast.success(res.data.message);
+                    this.create_dich_vu = { ten_dich_vu: "", loai_dich_vu: "Gói tập", gia_tien: null, thoi_han: "", so_buoi: "", status: 1 };
+                    this.getListDichVu(this.currentPage);
+                }
+            });
     },
     openEdit(item) {
-      this.editService = { ...item };
+      this.edit_dich_vu = { ...item };
     },
     updateService() {
-      const i = this.services.findIndex(s => s.id === this.editService.id);
-      this.services.splice(i, 1, this.editService);
+        axios.post('admin/dich-vu/update', this.edit_dich_vu)
+            .then((res) => {
+                if (res.data.status) {
+                    this.$toast.success(res.data.message);
+                    this.getListDichVu(this.currentPage);
+                }
+            });
     },
     openDelete(item) {
-      this.deleteService = item;
+      this.del_dich_vu = item;
+    },
+    formatCurrency(value) {
+      return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value * 1000);
     },
     removeService() {
-      this.services = this.services.filter(s => s.id !== this.deleteService.id);
+        axios.post('admin/dich-vu/delete', this.del_dich_vu)
+            .then((res) => {
+                if (res.data.status) {
+                    this.$toast.success(res.data.message);
+                    this.getListDichVu(this.currentPage);
+                }
+            });
+    },
+    getServiceIcon(type) {
+      const map = {
+        'Gói tập': 'fa-solid fa-dumbbell',
+        'PT': 'fa-solid fa-user-ninja',
+        'Yoga': 'fa-solid fa-spa',
+        'Spa': 'fa-solid fa-heart-pulse'
+      };
+      return map[type] || 'fa-solid fa-gem';
     }
   }
 };
