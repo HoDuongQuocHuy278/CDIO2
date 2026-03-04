@@ -35,4 +35,13 @@ class Member extends Model
     const WARNING_LEVEL_1 = 1;
     const WARNING_LEVEL_2 = 2;
 
+    public function checkIns()
+    {
+        return $this->hasMany(\App\Models\CheckIn::class, 'member_id', 'id');
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(\App\Models\Invoice::class, 'customer', 'full_name');
+    }
 }

@@ -45,13 +45,14 @@ class DashboardController extends Controller
         }
 
         // Recent Activity
-        $recentActivity = CheckIn::with('member')
+        $recentActivity = CheckIn::whereHas('member')
+            ->with('member')
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get()
             ->map(function($item) {
                 return [
-                    'name' => $item->member->full_name,
+                    'name' => $item->member ? $item->member->full_name : 'N/A',
                     'action' => 'Đã check-in (' . $item->check_in_type . ')',
                     'time' => Carbon::parse($item->created_at)->diffForHumans()
                 ];

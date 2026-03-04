@@ -10,6 +10,10 @@ class Service extends Model
 
     protected $fillable = [
         'ten_dich_vu',
+        'loai_dich_vu',
+        'gia_tien',
+        'thoi_han',
+        'so_buoi',
         'mo_ta',
         'status',
     ];

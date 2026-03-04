@@ -166,6 +166,7 @@ export default {
                 .getUserMedia(this.buildConstraints(deviceId))
                 .then(stream => {
                     this.$refs.video.srcObject = stream
+                    this.$refs.video.play().catch(e => console.warn("Auto-play failed:", e));
 
                     if (this.rememberDevice) {
                         window.localStorage.setItem(this.rememberDeviceTokenName, deviceId)
@@ -289,13 +290,20 @@ export default {
 
             let image_data_url = canvas.toDataURL(this.imageType);
             canvas.toBlob(blob => {
-                if (this.audio) {
-                    this.$refs.audio.play();
+                if (this.audio && this.$refs.audio) {
+                    let playPromise = this.$refs.audio.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.warn("Audio play failed:", error);
+                        });
+                    }
                 }
-                if (this.shutterEffect) {
+                if (this.shutterEffect && this.$refs.shutter) {
                     this.$refs.shutter.classList.add('on');
                     setTimeout(() => {
-                        this.$refs.shutter.classList.remove('on');
+                        if (this.$refs.shutter) {
+                            this.$refs.shutter.classList.remove('on');
+                        }
                     }, 30*2+45);
                 }
                 this.$emit('photoTaken', { blob, image_data_url })

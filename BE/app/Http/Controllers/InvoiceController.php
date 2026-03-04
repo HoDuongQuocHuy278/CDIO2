@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\Invoice;
+use App\Http\Requests\Admin\InvoiceRequest;
 
 class InvoiceController extends Controller
 {
@@ -17,9 +17,9 @@ class InvoiceController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function addData(InvoiceRequest $request)
     {
-        $data = Invoice::create($request->all());
+        $data = Invoice::create($request->validated());
         return response()->json([
             'status' => true,
             'message' => 'Tạo hóa đơn thành công',
@@ -27,11 +27,11 @@ class InvoiceController extends Controller
         ]);
     }
 
-    public function update(Request $request)
+    public function update(InvoiceRequest $request)
     {
         $data = Invoice::find($request->id);
         if ($data) {
-            $data->update($request->all());
+            $data->update($request->validated());
             return response()->json([
                 'status' => true,
                 'message' => 'Cập nhật hóa đơn thành công'
@@ -43,7 +43,7 @@ class InvoiceController extends Controller
         ]);
     }
 
-    public function delete(Request $request)
+    public function destroy(Request $request)
     {
         $data = Invoice::find($request->id);
         if ($data) {

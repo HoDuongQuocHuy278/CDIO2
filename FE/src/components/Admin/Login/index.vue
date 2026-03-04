@@ -36,9 +36,12 @@
                         <a href="#">Forgot Password?</a>
                     </div>
 
-                    <button v-on:click="DangNhap()" type="button" class="btn-login">
-                        Sign In
-                    </button>
+                    <div class="d-grid mt-4">
+                        <button :disabled="isLoading" @click="dangNhap()" type="button" class="btn btn-primary btn-lg custom-btn">
+                            <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                            {{ isLoading ? 'Đang xác thực...' : 'Sign In' }}
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -46,10 +49,7 @@
 </template>
 
 <script>
-import { createToaster } from "@meforma/vue-toaster";
-const toaster = createToaster({ position: "top-right" });
-import './index.css'
-import baseRequestAdmin from "@/core/baseRequestAdmin";
+import axios from '@/axios';
 
 export default {
     data() {
@@ -58,30 +58,70 @@ export default {
                 so_dien_thoai: '',
                 password: ''
             },
-            showPassword: false,
+            isLoading: false,
+            showPassword: false
         }
     },
     methods: {
-        DangNhap() {
-            baseRequestAdmin.post('admin/login', this.user)
+        dangNhap() {
+            if (!this.user.so_dien_thoai || !this.user.password) {
+                this.$toast.error("Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
+
+            this.isLoading = true;
+            console.log("Attempting login for:", this.user.so_dien_thoai);
+            
+            axios
+                .post('admin/login', this.user)
                 .then((res) => {
+                    console.log("Login Response:", res.data);
                     if (res.data.status) {
-                        toaster.success(res.data.message)
-                        this.user = {};
-                        localStorage.setItem('token_admin',res.data.token);
-                        this.$router.push('/admin/dashboard');
+                        try {
+                            if (this.$toast) {
+                                this.$toast.success(res.data.message);
+                            }
+                            
+                            // Save token first
+                            localStorage.setItem('key_admin', res.data.token);
+                            localStorage.setItem('ho_ten_admin', res.data.admin.ho_ten);
+                            localStorage.setItem('hinh_anh_admin', res.data.admin.hinh_anh);
+                            
+                            console.log("Token and user info saved to LocalStorage");
+                            
+                            setTimeout(() => {
+                                console.log("Redirecting to dashboard...");
+                                this.$router.push('/admin/dashboard');
+                            }, 500);
+                        } catch (e) {
+                            console.error("Error in login success handler:", e);
+                            // Fallback redirection if JS crashes but token is saved
+                            window.location.href = '/admin/dashboard';
+                        }
                     } else {
-                        toaster.error(res.data.message);
+                        if (this.$toast) {
+                            this.$toast.error(res.data.message);
+                        } else {
+                            alert(res.data.message);
+                        }
                     }
                 })
                 .catch((err) => {
-                    const listErr = err.response.data.errors;
-                    Object.values(listErr).forEach((error) => {
-                            toaster.error(error[0]);
-                    });
+                    console.error("Login API Error:", err);
+                    const message = err.response?.data?.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
+                    if (this.$toast) {
+                        this.$toast.error(message);
+                    } else {
+                        alert(message);
+                    }
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
         }
-        
     }
 }
 </script>
+<style>
+@import './index.css';
+</style>

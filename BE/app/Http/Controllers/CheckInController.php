@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\CheckIn;
 use App\Models\Member;
+use App\Http\Requests\Admin\CheckInRequest;
 
 class CheckInController extends Controller
 {
@@ -41,12 +41,8 @@ class CheckInController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(CheckInRequest $request)
     {
-        $request->validate([
-            'member_id' => 'required|exists:members,id',
-        ]);
-
         $data = CheckIn::create([
             'member_id' => $request->member_id,
             'check_in_type' => $request->check_in_type ?? 'FaceID',

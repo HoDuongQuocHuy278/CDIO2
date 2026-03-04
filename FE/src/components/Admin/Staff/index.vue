@@ -1,277 +1,304 @@
 <template>
-  <!-- HEADER -->
-<div class="staff-header">
-  <div class="staff-header-left">
-    <h2>Quản lý nhân viên</h2>
-    <p>Quản lý thông tin nhân viên và lịch làm việc</p>
-  </div>
-
-  <div class="staff-header-right">
-    <!-- SEARCH -->
-    <div class="staff-search">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <input
-        type="text"
-        placeholder="Tìm kiếm nhân viên..."
-        v-model="tim_kiem.noi_dung_tim_kiem"
-      />
-    </div>
-
-    <!-- ADD BUTTON -->
-    <button
-      class="staff-add-btn"
-      data-bs-toggle="modal"
-      data-bs-target="#addModal"
-    >
-      <i class="fa-solid fa-plus"></i>
-      Thêm nhân viên
-    </button>
-  </div>
-</div>
-    <!-- STAFF GRID -->
-
-  <div class="staff-grid">
-    <div
-      class="staff-card"
-      v-for="(staff, index) in filteredStaff"
-      :key="staff.id"
-    >
-      <!-- Header -->
-      <div class="staff-card-header">
-        <div class="avatar-circle">
-          <i class="fa-solid fa-user"></i>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center mt-2 bg-transparent border-bottom-0">
+                    <h4 class="fw-bold text-primary mb-0">QUẢN LÝ NHÂN VIÊN</h4>
+                    <button class="btn btn-primary shadow-sm px-4" data-bs-toggle="modal" data-bs-target="#addModal">
+                        <i class="fa-solid fa-user-plus me-1"></i> Thêm Nhân Viên
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" v-model="tim_kiem.noi_dung_tim_kiem" class="form-control" placeholder="Tìm theo tên, SĐT hoặc email...">
+                                <button class="btn btn-outline-secondary" @click="getListNhanVien()">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr class="table-primary text-center">
+                                    <th style="width: 50px;">#</th>
+                                    <th>Họ Và Tên</th>
+                                    <th>Chức Vụ</th>
+                                    <th>Số Điện Thoại</th>
+                                    <th>Email</th>
+                                    <th>Số Buổi Làm</th>
+                                    <th>Lương Cố Định</th>
+                                    <th>Trạng Thái</th>
+                                    <th style="width: 150px;">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody v-if="!isLoading">
+                                <tr v-for="(v, i) in list_nhan_vien" :key="i">
+                                    <td class="text-center">{{ i + 1 }}</td>
+                                    <td class="fw-bold text-dark">{{ v.ho_ten }}</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info text-dark">{{ v.chuc_vu }}</span>
+                                    </td>
+                                    <td class="text-center">{{ v.sdt }}</td>
+                                    <td>{{ v.email }}</td>
+                                    <td class="text-center fw-bold text-primary">{{ v.so_buoi_lam || 0 }}</td>
+                                    <td class="text-end text-success fw-bold">{{ formatCurrency(v.luong_co_dinh || 0) }}</td>
+                                    <td class="text-center">
+                                        <span :class="v.trang_thai == 1 ? 'badge bg-success' : 'badge bg-danger'">
+                                            {{ v.trang_thai == 1 ? 'Đang Làm' : 'Nghỉ Việc' }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-warning btn-sm me-1" @click="update_nhan_vien = { ...v }" data-bs-toggle="modal" data-bs-target="#updateModal">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" @click="delete_nhan_vien = { ...v }" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody v-else>
+                                <tr>
+                                    <td colspan="7" class="text-center py-5">
+                                        <div class="spinner-border text-primary" role="status"></div>
+                                        <div class="mt-2 text-muted">Đang tải danh sách nhân viên...</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-        <h4 class="staff-name">{{ staff.ho_ten }}</h4>
-        <p class="staff-role">{{ staff.chuc_vu }}</p>
-      </div>
+    </div>
 
-      <!-- Body -->
-      <div class="staff-card-body">
-        <div class="info-row">
-          <i class="fa-solid fa-phone"></i>
-          <span>{{ staff.sdt }}</span>
+    <!-- Modal Thêm -->
+    <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm Nhân Viên Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Họ Tên</label>
+                        <input v-model="create_nhan_vien.ho_ten" type="text" class="form-control" placeholder="Nhập họ tên đầy đủ">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số Điện Thoại</label>
+                        <input v-model="create_nhan_vien.sdt" type="text" class="form-control" placeholder="Nhập số điện thoại">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input v-model="create_nhan_vien.email" type="email" class="form-control" placeholder="Nhập email">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Chức Vụ</label>
+                        <select v-model="create_nhan_vien.chuc_vu" class="form-select">
+                            <option value="Quản lý">Quản lý</option>
+                            <option value="Huấn luyện viên">Huấn luyện viên</option>
+                            <option value="Lễ tân">Lễ tân</option>
+                            <option value="Bảo vệ">Bảo vệ</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Lương Cố Định</label>
+                        <input v-model="create_nhan_vien.luong_co_dinh" type="number" class="form-control" placeholder="Nhập lương VNĐ">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Trạng Thái</label>
+                        <select v-model="create_nhan_vien.trang_thai" class="form-select">
+                            <option :value="1">Đang Làm</option>
+                            <option :value="0">Nghỉ Việc</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" @click="themMoiNhanVien()" class="btn btn-primary" :disabled="isSaving">Lưu Lại</button>
+                </div>
+            </div>
         </div>
-        <div class="info-row">
-          <i class="fa-solid fa-envelope"></i>
-          <span>{{ staff.email }}</span>
+    </div>
+
+    <!-- Modal Sửa -->
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cập Nhật Nhân Viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Họ Tên</label>
+                        <input v-model="update_nhan_vien.ho_ten" type="text" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số Điện Thoại</label>
+                        <input v-model="update_nhan_vien.sdt" type="text" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input v-model="update_nhan_vien.email" type="email" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Chức Vụ</label>
+                        <select v-model="update_nhan_vien.chuc_vu" class="form-select">
+                            <option value="Quản lý">Quản lý</option>
+                            <option value="Huấn luyện viên">Huấn luyện viên</option>
+                            <option value="Lễ tân">Lễ tân</option>
+                            <option value="Bảo vệ">Bảo vệ</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Lương Cố Định</label>
+                        <input v-model="update_nhan_vien.luong_co_dinh" type="number" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Trạng Thái</label>
+                        <select v-model="update_nhan_vien.trang_thai" class="form-select">
+                            <option :value="1">Đang Làm</option>
+                            <option :value="0">Nghỉ Việc</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" @click="capNhatNhanVien()" class="btn btn-warning" :disabled="isSaving">Cập Nhật</button>
+                </div>
+            </div>
         </div>
-        <div class="info-row">
-          <i class="fa-solid fa-clock"></i>
-          <span>
-            {{ staff.trang_thai === 1 ? "Đang làm" : "Nghỉ việc" }}
-          </span>
+    </div>
+
+    <!-- Modal Xóa -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác Nhận Xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    Bạn có chắc chắn muốn xóa nhân viên <b>{{ delete_nhan_vien.ho_ten }}</b> không?<br>
+                    <small class="text-danger">Thao tác này không thể hoàn tác.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" @click="xoaNhanVien()" class="btn btn-danger" :disabled="isSaving">Xác Nhận Xóa</button>
+                </div>
+            </div>
         </div>
-      </div>
-
-      <!-- Footer -->
-      <div class="staff-card-footer">
-        <button
-          class="btn-card edit"
-          @click="Object.assign(update_nhan_vien, staff)"
-          data-bs-toggle="modal"
-          data-bs-target="#updateModal"
-        >
-          <i class="fa-solid fa-pen"></i> Sửa
-        </button>
-
-        <button
-          class="btn-card delete"
-          @click="Object.assign(delete_nhan_vien, staff)"
-          data-bs-toggle="modal"
-          data-bs-target="#deleteModal"
-        >
-          <i class="fa-solid fa-trash"></i> Xóa
-        </button>
-      </div>
     </div>
-  </div>
-
-  <!-- PAGINATION -->
-  <div class="pagination-container mt-4" v-if="totalPages > 1">
-      <div class="pagination-info">
-        Trang <strong>{{ currentPage }}</strong> / {{ totalPages }} (Tổng {{ totalRecords }} nhân viên)
-      </div>
-      <div class="pagination-group">
-        <button class="page-btn" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">
-          <i class="fa-solid fa-chevron-left"></i>
-        </button>
-
-        <button 
-          v-for="page in totalPages" 
-          :key="page" 
-          class="page-btn" 
-          :class="{ active: currentPage === page }"
-          @click="changePage(page)"
-        >
-          {{ page }}
-        </button>
-
-        <button class="page-btn" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
-          <i class="fa-solid fa-chevron-right"></i>
-        </button>
-      </div>
-  </div>
-
-  <!-- ADD MODAL -->
-<div class="modal fade" id="addModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content modal-custom">
-      <div class="modal-header gradient">
-        <h5>Thêm nhân viên</h5>
-        <button class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-
-      <div class="modal-body">
-        <input v-model="create_nhan_vien.ho_ten" placeholder="Họ tên" />
-        <input v-model="create_nhan_vien.sdt" placeholder="Số điện thoại" />
-        <input v-model="create_nhan_vien.email" placeholder="Email" />
-        <select v-model="create_nhan_vien.trang_thai">
-          <option :value="1">Đang làm</option>
-          <option :value="0">Nghỉ việc</option>
-        </select>
-      </div>
-
-      <div class="modal-footer">
-        <button data-bs-dismiss="modal">Hủy</button>
-        <button class="btn-primary" @click="ThemMoiNhanVien" data-bs-dismiss="modal">
-          Lưu
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- UPDATE MODAL -->
-<div class="modal fade" id="updateModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content modal-custom">
-      <div class="modal-header gradient">
-        <h5>Cập nhật nhân viên</h5>
-        <button class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-
-      <div class="modal-body">
-        <input v-model="update_nhan_vien.ho_ten" />
-        <input v-model="update_nhan_vien.sdt" />
-        <input v-model="update_nhan_vien.email" />
-        <select v-model="update_nhan_vien.trang_thai">
-          <option :value="1">Đang làm</option>
-          <option :value="0">Nghỉ việc</option>
-        </select>
-      </div>
-
-      <div class="modal-footer">
-        <button data-bs-dismiss="modal">Hủy</button>
-        <button class="btn-primary" @click="CapNhatNhanVien" data-bs-dismiss="modal">
-          Cập nhật
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- DELETE MODAL -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content modal-custom text-center">
-      <div class="modal-body">
-        <i class="fa-solid fa-trash delete-icon"></i>
-        <h4>Xóa nhân viên?</h4>
-        <p>{{ delete_nhan_vien.ho_ten }} sẽ bị xóa vĩnh viễn</p>
-      </div>
-
-      <div class="modal-footer center">
-        <button data-bs-dismiss="modal">Hủy</button>
-        <button class="btn-danger" @click="xoaNhanVien" data-bs-dismiss="modal">
-          Xóa
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
 </template>
 
 <script>
-import "./index.css";
-import axios from '@/axios';
+import axios from '../../../axios';
 
 export default {
-  data() {
-    return {
-      list_nhan_vien: [],
-      create_nhan_vien: {
-        ho_ten: "",
-        sdt: "",
-        email: "",
-        chuc_vu: "Huấn luyện viên",
-        trang_thai: 1,
-      },
-      update_nhan_vien: {},
-      delete_nhan_vien: {},
-      tim_kiem: {
-        noi_dung_tim_kiem: "",
-      },
-      currentPage: 1,
-      totalPages: 1,
-      totalRecords: 0,
-    };
-  },
-  computed: {
-    filteredStaff() {
-      const key = this.tim_kiem.noi_dung_tim_kiem.toLowerCase();
-      return this.list_nhan_vien.filter(
-        (s) =>
-          (s.ho_ten && s.ho_ten.toLowerCase().includes(key)) ||
-          (s.sdt && s.sdt.includes(key)) ||
-          (s.email && s.email.toLowerCase().includes(key)),
-      );
+    data() {
+        return {
+            list_nhan_vien: [],
+            create_nhan_vien: {
+                ho_ten: "",
+                sdt: "",
+                email: "",
+                chuc_vu: "Huấn luyện viên",
+                luong_co_dinh: 0,
+                trang_thai: 1,
+            },
+            update_nhan_vien: {},
+            delete_nhan_vien: {},
+            tim_kiem: {
+                noi_dung_tim_kiem: "",
+            },
+            currentPage: 1,
+            totalPages: 1,
+            totalRecords: 0,
+            isLoading: false,
+            isSaving: false,
+        };
     },
-  },
-  mounted() {
-    this.getListNhanVien();
-  },
-  methods: {
-    getListNhanVien(page = 1) {
-        axios.get(`admin/nhan-vien/get-data?page=${page}`)
-            .then((res) => {
-                this.list_nhan_vien = res.data.data.data;
-                this.currentPage = res.data.data.current_page;
-                this.totalPages = res.data.data.last_page;
-                this.totalRecords = res.data.data.total;
-            });
+    mounted() {
+        this.getListNhanVien();
     },
-    changePage(page) {
-      if (page >= 1 && page <= this.totalPages) {
-        this.getListNhanVien(page);
-      }
-    },
-    ThemMoiNhanVien() {
-        axios.post('admin/nhan-vien/add-data', this.create_nhan_vien)
-            .then((res) => {
-                if (res.data.status) {
-                    this.$toast.success(res.data.message);
-                    this.create_nhan_vien = { ho_ten: "", sdt: "", email: "", chuc_vu: "Huấn luyện viên", trang_thai: 1 };
-                    this.getListNhanVien(this.currentPage);
+    methods: {
+        getListNhanVien(page = 1) {
+            this.isLoading = true;
+            axios.get('admin/nhan-vien/get-data', {
+                params: {
+                    page: page,
+                    query: this.tim_kiem.noi_dung_tim_kiem
                 }
-            });
-    },
-    CapNhatNhanVien() {
-        axios.post('admin/nhan-vien/update', this.update_nhan_vien)
-            .then((res) => {
-                if (res.data.status) {
-                    this.$toast.success(res.data.message);
-                    this.getListNhanVien(this.currentPage);
-                }
-            });
-    },
-    xoaNhanVien() {
-        axios.post('admin/nhan-vien/delete', this.delete_nhan_vien)
-            .then((res) => {
-                if (res.data.status) {
-                    this.$toast.success(res.data.message);
-                    this.getListNhanVien(this.currentPage);
-                }
-            });
+            })
+                .then((res) => {
+                    this.list_nhan_vien = res.data.data.data || res.data.data;
+                    this.currentPage = res.data.data.current_page || 1;
+                    this.totalPages = res.data.data.last_page || 1;
+                    this.totalRecords = res.data.data.total || this.list_nhan_vien.length;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
+        themMoiNhanVien() {
+            this.isSaving = true;
+            axios.post('admin/nhan-vien/add-data', this.create_nhan_vien)
+                .then((res) => {
+                    if (res.data.status) {
+                        this.$toast.success(res.data.message);
+                        this.getListNhanVien();
+                        this.create_nhan_vien = { ho_ten: "", sdt: "", email: "", chuc_vu: "Huấn luyện viên", luong_co_dinh: 0, trang_thai: 1 };
+                        bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
+                    } else {
+                        this.$toast.error(res.data.message);
+                    }
+                })
+                .finally(() => {
+                    this.isSaving = false;
+                });
+        },
+        capNhatNhanVien() {
+            this.isSaving = true;
+            axios.post('admin/nhan-vien/update', this.update_nhan_vien)
+                .then((res) => {
+                    if (res.data.status) {
+                        this.$toast.success(res.data.message);
+                        this.getListNhanVien();
+                        bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
+                    } else {
+                        this.$toast.error(res.data.message);
+                    }
+                })
+                .finally(() => {
+                    this.isSaving = false;
+                });
+        },
+        xoaNhanVien() {
+            this.isSaving = true;
+            axios.post('http://127.0.0.1:8000/api/admin/nhan-vien/delete', this.delete_nhan_vien)
+                .then((res) => {
+                    if (res.data.status) {
+                        this.$toast.success(res.data.message);
+                        this.getListNhanVien();
+                        bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+                    } else {
+                        this.$toast.error(res.data.message);
+                    }
+                })
+                .finally(() => {
+                    this.isSaving = false;
+                });
+        },
+        formatCurrency(value) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+        }
     }
-  },
 };
 </script>
+```

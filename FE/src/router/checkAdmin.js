@@ -1,21 +1,20 @@
-import axios from "axios";
-import { createToaster } from "@meforma/vue-toaster";
-const toaster = createToaster({ position: "top-right" });
+import axios from "@/axios";
+
 export default function (to, from, next) {
-  var token = localStorage.getItem("token_admin");
   axios
-    .get("http://127.0.0.1:8000/api/admin/check-token", {
-      headers: {
-        Authorization: "Bearer " + token,
-      },
-    })
+    .get("admin/check-token")
     .then((res) => {
       if (res.data.status) {
         localStorage.setItem("ho_ten_admin", res.data.ho_ten);
+        localStorage.setItem("hinh_anh_admin", res.data.hinh_anh);
         next();
       } else {
-        next("/admin/login");
-        toaster.error(res.data.message);
+        localStorage.removeItem("key_admin");
+        next("/");
       }
+    })
+    .catch(() => {
+      localStorage.removeItem("key_admin");
+      next("/");
     });
 }

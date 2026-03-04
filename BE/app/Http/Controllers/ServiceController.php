@@ -7,6 +7,7 @@ use App\Models\ServicePackage;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\Admin\ServiceRequest;
 
 class ServiceController extends Controller
 {
@@ -19,24 +20,24 @@ class ServiceController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function addData(ServiceRequest $request)
     {
-        $data = Service::create($request->all());
+        $data = Service::create($request->validated());
         return response()->json([
             'status' => true,
-            'message' => 'Thêm dịch vụ thành công',
+            'message' => 'Thêm dịch vụ ' . $data->ten_dich_vu . ' thành công',
             'data' => $data
         ]);
     }
 
-    public function update(Request $request)
+    public function update(ServiceRequest $request)
     {
         $data = Service::find($request->id);
         if ($data) {
-            $data->update($request->all());
+            $data->update($request->validated());
             return response()->json([
                 'status' => true,
-                'message' => 'Cập nhật dịch vụ thành công'
+                'message' => 'Cập nhật dịch vụ ' . $data->ten_dich_vu . ' thành công'
             ]);
         }
         return response()->json([
@@ -45,14 +46,14 @@ class ServiceController extends Controller
         ]);
     }
 
-    public function delete(Request $request)
+    public function destroy(Request $request)
     {
         $data = Service::find($request->id);
         if ($data) {
             $data->delete();
             return response()->json([
                 'status' => true,
-                'message' => 'Xóa dịch vụ thành công'
+                'message' => 'Xóa dịch vụ ' . $data->ten_dich_vu . ' thành công'
             ]);
         }
         return response()->json([

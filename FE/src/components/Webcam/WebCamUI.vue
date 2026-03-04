@@ -153,6 +153,7 @@ export default {
     data() {
         return {
             cameras: [],
+            deviceId: null,
             reloadCamInterval: null,
             startDate: new Date().toLocaleDateString('vi-VN'),
 
@@ -161,7 +162,7 @@ export default {
     photoConfirmed: false
         }
     },
-    emits: ['clear','stop','start','pause','resume', 'error', 'unsupported', 'init', 'photoTaken', 'fullscreen'],
+    emits: ['clear','stop','start','pause','resume', 'error', 'unsupported', 'init', 'photoTaken', 'fullscreen', 'photoCleared'],
     beforeUnmount() {
         if (this.reloadCamInterval) {
             clearInterval(this.reloadCamInterval)

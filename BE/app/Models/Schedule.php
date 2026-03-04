@@ -18,4 +18,8 @@ class Schedule extends Model
         'start',
         'end',
     ];
+
+    protected $casts = [
+        'pt' => 'array',
+    ];
 }

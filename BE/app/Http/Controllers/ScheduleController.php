@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use App\Models\Schedule;
+use Illuminate\Http\Request;
+use App\Http\Requests\Admin\ScheduleRequest;
 
 class ScheduleController extends Controller
 {
@@ -17,9 +17,9 @@ class ScheduleController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function addData(ScheduleRequest $request)
     {
-        $data = Schedule::create($request->all());
+        $data = Schedule::create($request->validated());
         return response()->json([
             'status' => true,
             'message' => 'Thêm lịch làm thành công',
@@ -27,11 +27,11 @@ class ScheduleController extends Controller
         ]);
     }
 
-    public function update(Request $request)
+    public function update(ScheduleRequest $request)
     {
         $data = Schedule::find($request->id);
         if ($data) {
-            $data->update($request->all());
+            $data->update($request->validated());
             return response()->json([
                 'status' => true,
                 'message' => 'Cập nhật lịch làm thành công'
@@ -43,7 +43,7 @@ class ScheduleController extends Controller
         ]);
     }
 
-    public function delete(Request $request)
+    public function destroy(Request $request)
     {
         $data = Schedule::find($request->id);
         if ($data) {

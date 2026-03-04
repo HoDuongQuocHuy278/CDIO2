@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\Admin\ProductRequest;
 
 class ProductController extends Controller
 {
@@ -17,24 +18,24 @@ class ProductController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function addData(ProductRequest $request)
     {
-        $data = Product::create($request->all());
+        $data = Product::create($request->validated());
         return response()->json([
             'status' => true,
-            'message' => 'Thêm sản phẩm thành công',
+            'message' => 'Thêm sản phẩm ' . $data->ten_san_pham . ' thành công',
             'data' => $data
         ]);
     }
 
-    public function update(Request $request)
+    public function update(ProductRequest $request)
     {
         $data = Product::find($request->id);
         if ($data) {
-            $data->update($request->all());
+            $data->update($request->validated());
             return response()->json([
                 'status' => true,
-                'message' => 'Cập nhật sản phẩm thành công'
+                'message' => 'Cập nhật sản phẩm ' . $data->ten_san_pham . ' thành công'
             ]);
         }
         return response()->json([
@@ -43,14 +44,14 @@ class ProductController extends Controller
         ]);
     }
 
-    public function delete(Request $request)
+    public function destroy(Request $request)
     {
         $data = Product::find($request->id);
         if ($data) {
             $data->delete();
             return response()->json([
                 'status' => true,
-                'message' => 'Xóa sản phẩm thành công'
+                'message' => 'Xóa sản phẩm ' . $data->ten_san_pham . ' thành công'
             ]);
         }
         return response()->json([

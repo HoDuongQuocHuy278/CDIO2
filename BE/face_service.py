@@ -121,8 +121,8 @@ def recognize():
                     score = recognizer.match(feature, known_feature, cv2.FaceRecognizerSF_FR_COSINE)
                     
                     # Strictly thresholding: SFace standard is 0.363
-                    # We boost it to 0.4 for higher precision to avoid "quá sai" (false positives)
-                    if score > 0.42: 
+                    # We use 0.40 for a balance between speed and precision
+                    if score > 0.40: 
                         if score > max_score:
                             max_score = score
                             member_id = known_face_ids[idx]
@@ -142,6 +142,14 @@ def recognize():
     except Exception as e:
         print(f"Critical error: {e}")
         return jsonify({'status': False, 'message': str(e)}), 500
+
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({
+        'status': True, 
+        'message': 'AI Service is running',
+        'members_loaded': len(known_face_features)
+    })
 
 @app.route('/reload', methods=['GET'])
 def reload():

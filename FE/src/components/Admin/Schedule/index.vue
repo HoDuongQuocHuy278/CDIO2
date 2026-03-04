@@ -1,248 +1,273 @@
 <template>
-  <div class="schedule-page">
-    <!-- HEADER -->
-    <div class="schedule-header">
-      <div>
-        <h2>Lịch làm PT</h2>
-        <p>Quản lý lịch dạy của huấn luyện viên</p>
-      </div>
-      <button class="btn-add" @click="openAdd">+ Thêm lịch</button>
-    </div>
-
-    <!-- CALENDAR -->
-    <div class="calendar">
-      <!-- HEADER DAYS -->
-      <div class="calendar-header">
-        <div class="time-col"></div>
-        <div v-for="day in days" :key="day" class="day-col">
-          {{ day }}
-        </div>
-      </div>
-
-      <!-- BODY -->
-      <div class="calendar-body">
-        <div v-for="hour in hours" :key="hour" class="calendar-row">
-          <!-- TIME -->
-          <div class="time-col">{{ hour }}:00</div>
-
-          <!-- DAY CELLS -->
-          <div v-for="day in days" :key="day" class="day-cell">
-            <div
-              v-for="event in getEvents(day, hour)"
-              :key="event.id"
-              class="event-note"
-              :style="getEventStyle(event)"
-            >
-              <!-- ACTIONS -->
-              <div class="note-actions">
-                <i class="fa-solid fa-pen" @click.stop="openEdit(event)"></i>
-                <i
-                  class="fa-solid fa-trash"
-                  @click.stop="openDelete(event)"
-                ></i>
-              </div>
-
-              <div class="note-pt">{{ event.pt }}</div>
-              <div class="note-customer">
-                {{ event.customer || "Khách chưa đặt" }}
-              </div>
-              <div class="note-time">
-                {{ event.start }}:00 - {{ event.end }}:00
-              </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center mt-2">
+                    <h4 class="fw-bold text-primary">Lịch Làm Việc PT</h4>
+                    <button class="btn btn-primary" @click="openAdd()">
+                        <i class="fa-solid fa-calendar-plus me-1"></i> Thêm Lịch Mới
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div v-if="isLoading" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted">Đang tải lịch làm việc...</p>
+                    </div>
+                    
+                    <div v-else class="table-responsive">
+                        <table class="table table-bordered align-middle calendar-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width: 100px;" class="text-center">Giờ</th>
+                                    <th v-for="day in days" :key="day" class="text-center">{{ day }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="hour in hours" :key="hour">
+                                    <td class="text-center fw-bold bg-light">{{ hour }}:00</td>
+                                    <td v-for="day in days" :key="day" class="calendar-cell p-1" style="min-height: 80px; width: 13%;">
+                                        <div v-for="event in getEvents(day, hour)" :key="event.id" 
+                                             class="event-card p-2 mb-1 shadow-sm border-start border-4" 
+                                             :class="getEventColorClass(event)"
+                                             @click="openEdit(event)">
+                                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                                <span class="fw-bold small text-truncate" :title="getStaffNames(event.pt)">{{ getStaffNames(event.pt) }}</span>
+                                                <div class="event-actions">
+                                                    <i class="fa-solid fa-trash text-danger cursor-pointer" @click.stop="openDelete(event)"></i>
+                                                </div>
+                                            </div>
+                                            <div class="small text-muted text-truncate">{{ event.customer || 'Trống khách hàng' }}</div>
+                                            <div class="small fw-medium">{{ event.start }}:00-{{ event.end }}:00</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
 
-    <!-- ADD MODAL -->
-    <div v-if="showModal" class="modal-overlay">
-  <div class="custom-modal">
-
-    <h3 class="modal-title">
-      {{ editingEvent ? "Sửa lịch làm" : "Thêm lịch làm" }}
-    </h3>
-
-    <div class="modal-form">
-
-      <!-- ROW 1 -->
-      <div class="form-row">
-        <div class="form-group">
-          <label>Tên PT</label>
-          <input v-model="form.pt" placeholder="VD: PT An" />
+    <!-- Modal Quản Lý Lịch -->
+    <div class="modal fade" id="scheduleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ editingEvent ? 'Cập Nhật Lịch' : 'Thêm Lịch Làm Việc' }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Chọn PT (Nhân Viên)</label>
+                            <select v-model="form.pt" multiple class="form-select" size="3">
+                                <option v-for="staff in list_staff" :key="staff.id" :value="staff.ho_ten + ' (' + staff.chuc_vu + ')'">
+                                    {{ staff.ho_ten }} - {{ staff.chuc_vu }}
+                                </option>
+                            </select>
+                            <small class="text-muted">Nhấn giữ Ctrl (hoặc Cmd) để chọn nhiều người.</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tên Khách Hàng</label>
+                            <input v-model="form.customer" type="text" class="form-control" placeholder="VD: Anh Bình">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Thứ Trong Tuần</label>
+                            <select v-model="form.day" class="form-select">
+                                <option v-for="day in days" :key="day" :value="day">{{ day }}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Bắt Đầu (Giờ)</label>
+                            <input v-model.number="form.start" type="number" min="8" max="21" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Kết Thúc (Giờ)</label>
+                            <input v-model.number="form.end" type="number" min="9" max="22" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" @click="saveEvent()" class="btn btn-primary" :disabled="isSaving">
+                        {{ editingEvent ? 'Cập Nhật' : 'Lưu Lịch' }}
+                    </button>
+                </div>
+            </div>
         </div>
-
-        <div class="form-group">
-          <label>Tên khách</label>
-          <input v-model="form.customer" placeholder="VD: Nguyễn Văn B" />
-        </div>
-      </div>
-
-      <!-- ROW 2 -->
-      <div class="form-row">
-        <div class="form-group">
-          <label>Thứ</label>
-          <select v-model="form.day">
-            <option v-for="day in days" :key="day">{{ day }}</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Bắt đầu</label>
-          <input type="number" v-model.number="form.start" />
-        </div>
-
-        <div class="form-group">
-          <label>Kết thúc</label>
-          <input type="number" v-model.number="form.end" />
-        </div>
-      </div>
-
     </div>
 
-    <!-- ACTIONS -->
-    <div class="modal-actions">
-      <button @click="closeModal">Hủy</button>
-      <button class="primary" @click="saveEvent">
-        {{ editingEvent ? "Cập nhật" : "Lưu" }}
-      </button>
-    </div>
-
-  </div>
-</div>
-
-    <div v-if="showDeleteModal" class="modal-overlay">
-      <div class="custom-modal text-center">
-        <i class="fa-solid fa-trash delete-icon"></i>
-        <h3>Xóa lịch làm?</h3>
-        <p>
-          {{ deletingEvent?.pt }} — {{ deletingEvent?.start }}:00 →
-          {{ deletingEvent?.end }}:00
-        </p>
-
-        <div class="modal-actions">
-          <button @click="showDeleteModal = false">Hủy</button>
-          <button class="danger" @click="confirmDelete">Xóa</button>
+    <!-- Modal Xóa -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác Nhận Xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    Bạn có chắc muốn xóa lịch của <b>{{ deletingEvent?.pt }}</b>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" @click="confirmDelete()" class="btn btn-danger" :disabled="isSaving">Xóa Ngay</button>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </template>
 
 <script>
-import "./index.css";
 import axios from '@/axios';
 
 export default {
-  name: "SchedulePT",
-
-  data() {
-    return {
-      showModal: false,
-      showDeleteModal: false,
-      editingEvent: null,
-      deletingEvent: null,
-
-      days: ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"],
-      hours: Array.from({ length: 14 }, (_, i) => i + 8),
-      form: {
-        pt: "",
-        customer: "",
-        day: "Thứ 2",
-        start: 8,
-        end: 9,
-      },
-      events: [],
-    };
-  },
-  mounted() {
-    this.getListSchedule();
-  },
-  methods: {
-    getListSchedule() {
-        axios.get('admin/lich-lam/get-data')
-            .then((res) => {
-                this.events = res.data.data;
-            });
+    data() {
+        return {
+            days: ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"],
+            hours: Array.from({ length: 14 }, (_, i) => i + 8),
+            events: [],
+            list_staff: [],
+            form: {
+                pt: [],
+                customer: "",
+                day: "Thứ 2",
+                start: 8,
+                end: 9,
+            },
+            editingEvent: null,
+            deletingEvent: null,
+            isLoading: false,
+            isSaving: false,
+            modalInstance: null,
+            deleteModalInstance: null
+        };
     },
-    openAdd() {
-      this.editingEvent = null;
-      this.form = {
-        pt: "",
-        customer: "",
-        day: "Thứ 2",
-        start: 8,
-        end: 9,
-      };
-      this.showModal = true;
+    mounted() {
+        this.loadData();
+        this.loadStaff();
+        this.modalInstance = new bootstrap.Modal(document.getElementById('scheduleModal'));
+        this.deleteModalInstance = new bootstrap.Modal(document.getElementById('deleteModal'));
     },
-
-    openEdit(event) {
-      this.editingEvent = event;
-      this.form = { ...event };
-      this.showModal = true;
-    },
-
-    openDelete(event) {
-      this.deletingEvent = event;
-      this.showDeleteModal = true;
-    },
-
-    saveEvent() {
-        if (this.editingEvent) {
-            axios.post('admin/lich-lam/update', this.form)
+    methods: {
+        loadData() { // Renamed from getListSchedule
+            this.isLoading = true;
+            axios.get('admin/lich-lam/get-data') // Relative path
                 .then((res) => {
-                    if (res.data.status) {
-                        this.$toast.success(res.data.message);
-                        this.getListSchedule();
-                        this.closeModal();
-                    }
+                    this.events = res.data.data;
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-        } else {
-            axios.post('admin/lich-lam/add-data', this.form)
+        },
+        loadStaff() {
+            axios.get('admin/nhan-vien/get-data', { params: { paginate: false } })
                 .then((res) => {
-                    if (res.data.status) {
-                        this.$toast.success(res.data.message);
-                        this.getListSchedule();
-                        this.closeModal();
-                    }
+                    this.list_staff = res.data.data.data || res.data.data;
                 });
-        }
-    },
-
-    confirmDelete() {
-        axios.post('admin/lich-lam/delete', this.deletingEvent)
-            .then((res) => {
-                if (res.data.status) {
-                    this.$toast.success(res.data.message);
-                    this.getListSchedule();
-                    this.showDeleteModal = false;
-                    this.deletingEvent = null;
+        },
+        openAdd() {
+            this.editingEvent = null;
+            this.form = { pt: [], customer: "", day: "Thứ 2", start: 8, end: 9 };
+            this.modalInstance.show();
+        },
+        openEdit(event) {
+            this.editingEvent = event;
+            this.form = { ...event };
+            // Ensure pt is an array
+            if (typeof this.form.pt === 'string') {
+                try {
+                    this.form.pt = JSON.parse(this.form.pt);
+                } catch(e) {
+                    this.form.pt = [this.form.pt];
                 }
-            });
-    },
-
-    closeModal() {
-      this.showModal = false;
-      this.editingEvent = null;
-      this.form = {
-        pt: "",
-        customer: "",
-        day: "Thứ 2",
-        start: 8,
-        end: 9,
-      };
-    },
-
-    getEvents(day, hour) {
-      return this.events.filter((e) => e.day === day && e.start === hour);
-    },
-
-    getEventStyle(event) {
-      return {
-        height: (event.end - event.start) * 60 + "px",
-      };
-    },
-  },
+            }
+            if (!Array.isArray(this.form.pt)) {
+                this.form.pt = [];
+            }
+            this.modalInstance.show();
+        },
+        openDelete(event) {
+            this.deletingEvent = event;
+            this.deleteModalInstance.show();
+        },
+        saveEvent() { // This method now handles both add and update
+            this.isSaving = true;
+            const api = this.editingEvent ? 'admin/lich-lam/update' : 'admin/lich-lam/add-data'; // Relative paths
+            axios.post(api, this.form)
+                .then((res) => {
+                    if (res.data.status) {
+                        this.$toast.success(res.data.message);
+                        this.loadData(); // Call the renamed method
+                        this.modalInstance.hide();
+                    } else {
+                        this.$toast.error(res.data.message);
+                    }
+                })
+                .catch((err) => {
+                    const errors = err.response?.data?.errors;
+                    if (errors) {
+                        for (let key in errors) {
+                            this.$toast.error(errors[key][0]);
+                        }
+                    } else {
+                        this.$toast.error("Có lỗi xảy ra, vui lòng thử lại!");
+                    }
+                })
+                .finally(() => {
+                    this.isSaving = false;
+                });
+        },
+        confirmDelete() { // Renamed from confirmDelete
+            this.isSaving = true;
+            axios.post('admin/lich-lam/destroy', this.deletingEvent) // Relative path and new endpoint
+                .then((res) => {
+                    if (res.data.status) {
+                        this.$toast.success(res.data.message);
+                        this.loadData(); // Call the renamed method
+                        this.deleteModalInstance.hide();
+                    } else {
+                        this.$toast.error(res.data.message);
+                    }
+                })
+                .catch((err) => {
+                    this.$toast.error("Vui lòng tải lại trang và thử lại!");
+                })
+                .finally(() => {
+                    this.isSaving = false;
+                });
+        },
+        getEvents(day, hour) {
+            return this.events.filter((e) => e.day === day && e.start === hour);
+        },
+        getEventColorClass(event) {
+            let pts = this.getStaffArray(event.pt);
+            let count = pts.length;
+            if (count >= 5) return 'border-danger bg-danger-light text-dark';
+            if (count >= 3) return 'border-warning bg-warning-light text-dark';
+            return 'border-success bg-success-light text-dark';
+        },
+        getStaffNames(ptData) {
+            return this.getStaffArray(ptData).join(', ') || 'Chưa phân công';
+        },
+        getStaffArray(ptData) {
+            if (!ptData) return [];
+            if (Array.isArray(ptData)) return ptData;
+            try { return JSON.parse(ptData); } catch (e) { return [ptData]; }
+        }
+    }
 };
 </script>
+
+<style scoped>
+.calendar-table th { min-width: 120px; }
+.calendar-cell { background-color: #fff; border: 1px solid #dee2e6; }
+.event-card { border-radius: 4px; transition: all 0.2s; cursor: pointer; }
+.event-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important; }
+.bg-success-light { background-color: #e8f5e9; }
+.bg-warning-light { background-color: #fff3e0; }
+.bg-danger-light { background-color: #ffebee; }
+.cursor-pointer { cursor: pointer; }
+.event-actions { opacity: 0.2; transition: opacity 0.2s; }
+.event-card:hover .event-actions { opacity: 1; }
+</style>

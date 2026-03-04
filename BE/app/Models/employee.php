@@ -19,6 +19,7 @@ class employee extends Model
         'ngay_vao_lam',
         'trang_thai',
         'user_id',
+        'luong_co_dinh',
     ];
 
     const NGHI_LAM = 0;

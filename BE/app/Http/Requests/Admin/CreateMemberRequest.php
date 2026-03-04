@@ -26,14 +26,13 @@ class CreateMemberRequest extends FormRequest
 
             'status'           => 'nullable|in:0,1',
 
-            'service_id'       => 'required|integer',
-            'ten_dich_vu'      => 'required|string|max:255',
-            'ten_goi'          => 'required|string|max:255',
-            'gia_tien'         => 'required|integer|min:0',
-            'package_duration' => 'required|integer|min:1',
-
+            'package_id'       => 'nullable|integer',
+            'thoi_han'         => 'required|integer|min:1',
             'start_date'       => 'required|date',
-            'end_date'         => 'required|date|after:start_date',
+            'face_image'       => 'required|string',
+            
+            'package_duration' => 'nullable|integer',
+            'end_date'         => 'nullable|date',
         ];
     }
     public function messages(): array
@@ -45,12 +44,9 @@ class CreateMemberRequest extends FormRequest
             'email.unique'         => 'Email đã tồn tại',
             'phone.required'       => 'Số điện thoại không được để trống',
 
-            'ten_dich_vu.required' => 'Tên dịch vụ không được để trống',
-            'ten_goi.required'     => 'Tên gói không được để trống',
-            'gia_tien.required'    => 'Giá tiền không được để trống',
-
+            'thoi_han.required'    => 'Thời hạn không được để trống',
             'start_date.required'  => 'Ngày bắt đầu không được để trống',
-            'end_date.after'       => 'Ngày kết thúc phải sau ngày bắt đầu',
+            'face_image.required'  => 'Ảnh khuôn mặt không được để trống',
         ];
     }
 }

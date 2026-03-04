@@ -19,5 +19,7 @@ class Invoice extends Model
         'amount',
         'method',
         'status',
+        'service_id',
+        'package_id',
     ];
 }

@@ -67,13 +67,45 @@
         </nav>
 
         <div class="sidebar-footer">
-            <div class="logout-btn">
+            <div class="user-profile">
+                <div class="user-avatar">
+                   <img :src="admin_hinh_anh" @error="$event.target.src='https://ui-avatars.com/api/?name=' + admin_ho_ten" alt="">
+                </div>
+                <div class="user-info">
+                   <span class="user-name">{{ admin_ho_ten }}</span>
+                   <span class="user-role">Administrator</span>
+                </div>
+            </div>
+            <div @click="DangXuất()" class="logout-btn">
                 <i class='bx bx-log-out'></i>
                 <span>Đăng xuất</span>
             </div>
         </div>
     </aside>
 </template>
+
+<script>
+export default {
+    data() {
+        return {
+            admin_ho_ten: '',
+            admin_hinh_anh: ''
+        }
+    },
+    mounted() {
+        this.admin_ho_ten = localStorage.getItem('ho_ten_admin');
+        this.admin_hinh_anh = localStorage.getItem('hinh_anh_admin');
+    },
+    methods: {
+        DangXuất() {
+            localStorage.removeItem('key_admin');
+            localStorage.removeItem('ho_ten_admin');
+            localStorage.removeItem('hinh_anh_admin');
+            this.$router.push('/');
+        }
+    }
+}
+</script>
 
 <style scoped>
 
@@ -230,5 +262,48 @@
     background: #fef2f2;
     color: #ef4444;
     border-color: #fee2e2;
+}
+
+/* --- USER PROFILE --- */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 0 8px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #f1f5f9;
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+.user-role {
+    font-size: 11px;
+    color: #64748b;
 }
 </style>

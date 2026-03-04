@@ -24,6 +24,10 @@ const routes = [
     },
 
     {
+        path: "/admin",
+        redirect: "/admin/dashboard",
+    },
+    {
         path: "/admin/dashboard",
         component: () => import("../components/Admin/Dashboard/index.vue"),
         meta: {
@@ -111,6 +115,15 @@ const router = createRouter({
 });
 
 // Navigation guard
+import checkAdmin from './checkAdmin';
+
+router.beforeEach((to, from, next) => {
+    if (to.meta.layout === 'AdminLayout') {
+        checkAdmin(to, from, next);
+    } else {
+        next();
+    }
+});
 
 
 export default router;

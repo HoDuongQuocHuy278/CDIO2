@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\equipments;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\Admin\EquipmentRequest;
 
 class EquipmentsController extends Controller
 {
@@ -20,24 +21,24 @@ class EquipmentsController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function addData(EquipmentRequest $request)
     {
-        $data = equipments::create($request->all());
+        $data = equipments::create($request->validated());
         return response()->json([
             'status' => true,
-            'message' => 'Thêm thiết bị thành công',
+            'message' => 'Thêm thiết bị ' . $data->name . ' thành công',
             'data' => $data
         ]);
     }
 
-    public function update(Request $request)
+    public function update(EquipmentRequest $request)
     {
         $data = equipments::find($request->id);
         if ($data) {
-            $data->update($request->all());
+            $data->update($request->validated());
             return response()->json([
                 'status' => true,
-                'message' => 'Cập nhật thiết bị thành công'
+                'message' => 'Cập nhật thiết bị ' . $data->name . ' thành công'
             ]);
         }
         return response()->json([
@@ -46,14 +47,14 @@ class EquipmentsController extends Controller
         ]);
     }
 
-    public function delete(Request $request)
+    public function destroy(Request $request)
     {
         $data = equipments::find($request->id);
         if ($data) {
             $data->delete();
             return response()->json([
                 'status' => true,
-                'message' => 'Xóa thiết bị thành công'
+                'message' => 'Xóa thiết bị ' . $data->name . ' thành công'
             ]);
         }
         return response()->json([
