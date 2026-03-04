@@ -2,44 +2,46 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Member extends Model
 {
-    use HasFactory;
+    protected $table = 'members';
 
     protected $fillable = [
-        'ho_ten',
-        'sdt',
-        'ngay_sinh',
-        'dia_chi',
+        'full_name',
         'email',
-        'ngay_tao',
+        'phone',
+        'address',
+        'avatar',
+        'status',
+        'service_id',
+
+        'service_name',
+        'package_name',
+        'package_price',
+        'package_duration',
+
+        'start_date',
+        'end_date',
+        'absent_days',
+        'warning_level',
     ];
 
-    public function membershipCards()
-    {
-        return $this->hasMany(MembershipCard::class, 'member_id');
-    }
+    const HOAT_DONG = 1;
+    const KHONG_HOAT_DONG = 0;
 
-    public function registrations()
-    {
-        return $this->hasMany(Registration::class, 'member_id');
-    }
+    const WARNING_LEVEL_0 = 0;
+    const WARNING_LEVEL_1 = 1;
+    const WARNING_LEVEL_2 = 2;
 
-    public function sessions()
+    public function checkIns()
     {
-        return $this->hasMany(MemberSession::class, 'member_id');
-    }
-
-    public function checkins()
-    {
-        return $this->hasMany(Checkin::class, 'member_id');
+        return $this->hasMany(\App\Models\CheckIn::class, 'member_id', 'id');
     }
 
     public function invoices()
     {
-        return $this->hasMany(Invoice::class, 'member_id');
+        return $this->hasMany(\App\Models\Invoice::class, 'customer', 'full_name');
     }
 }

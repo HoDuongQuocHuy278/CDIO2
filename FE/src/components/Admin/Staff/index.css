@@ -1,0 +1,327 @@
+/* GRID */
+.staff-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+/* CARD */
+.staff-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.staff-card:hover {
+  transform: translateY(-4px);
+}
+
+/* HEADER */
+.staff-card-header {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: white;
+  padding: 24px 16px 20px;
+  text-align: center;
+}
+
+.avatar-circle {
+  width: 56px;
+  height: 56px;
+  background: white;
+  color: #8b5cf6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+  font-size: 22px;
+}
+
+.staff-name {
+  font-weight: 700;
+  margin: 0;
+}
+
+.staff-role {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+/* BODY */
+.staff-card-body {
+  padding: 16px 20px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+/* FOOTER */
+.staff-card-footer {
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px 18px;
+}
+
+.btn-card {
+  flex: 1;
+  border: none;
+  padding: 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-card.edit {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.btn-card.edit:hover {
+  background: #4f46e5;
+  color: white;
+}
+
+.btn-card.delete {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.btn-card.delete:hover {
+  background: #ef4444;
+  color: white;
+}
+
+/* HEADER */
+.staff-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.staff-header-left h2 {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.staff-header-left p {
+  margin: 6px 0 0;
+  color: #6b7280;
+}
+
+/* RIGHT SIDE */
+.staff-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* SEARCH */
+.staff-search {
+  position: relative;
+  width: 300px;
+}
+
+.staff-search input {
+  width: 100%;
+  height: 44px;
+  padding: 0 16px 0 44px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  outline: none;
+  font-size: 14px;
+  background: #fff;
+}
+
+.staff-search input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.staff-search i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* ADD BUTTON */
+.staff-add-btn {
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.staff-add-btn:hover {
+  background: #1e40af;
+  transform: translateY(-1px);
+}
+
+/* ========== MODAL CONTAINER ========== */
+.modal-custom {
+  border-radius: 20px;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+  animation: modalFadeUp 0.3s ease;
+}
+
+/* Animation */
+@keyframes modalFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ========== MODAL HEADER ========== */
+.modal-header.gradient {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: white;
+  padding: 20px 24px;
+  border-bottom: none;
+}
+
+.modal-header.gradient h5 {
+  font-weight: 700;
+  font-size: 18px;
+  margin: 0;
+}
+
+/* Close button */
+.modal-header .btn-close {
+  filter: invert(1);
+  opacity: 0.8;
+}
+
+.modal-header .btn-close:hover {
+  opacity: 1;
+}
+
+/* ========== MODAL BODY ========== */
+.modal-body {
+  padding: 24px;
+  background: #ffffff;
+}
+
+/* Label (nếu có) */
+.modal-body label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* INPUT & SELECT */
+.modal-body input,
+.modal-body select {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  font-size: 14px;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+/* Focus effect */
+.modal-body input:focus,
+.modal-body select:focus {
+  outline: none;
+  background: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+}
+
+/* Placeholder */
+.modal-body input::placeholder {
+  color: #9ca3af;
+}
+
+/* ========== MODAL FOOTER ========== */
+.modal-footer {
+  padding: 16px 24px;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Buttons */
+.modal-footer button {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Cancel */
+.modal-footer button:first-child {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.modal-footer button:first-child:hover {
+  background: #d1d5db;
+}
+
+/* Primary */
+.modal-footer .btn-primary {
+  background: #2563eb;
+  color: white;
+}
+
+.modal-footer .btn-primary:hover {
+  background: #1e40af;
+  transform: translateY(-1px);
+}
+
+/* Danger (Delete modal) */
+.modal-footer .btn-danger {
+  background: #ef4444;
+  color: white;
+}
+
+.modal-footer .btn-danger:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* ========== DELETE MODAL ICON ========== */
+.delete-icon {
+  font-size: 48px;
+  color: #ef4444;
+  margin-bottom: 12px;
+}

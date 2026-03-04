@@ -7,21 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    use HasFactory;
-
+    protected $table = 'products';
     protected $fillable = [
         'ten_san_pham',
         'gia_ban',
         'so_luong',
+        'danh_muc',
     ];
 
-    public function inventoryItems()
-    {
-        return $this->hasMany(InventoryItem::class, 'product_id');
-    }
-
-    public function invoiceItems()
-    {
-        return $this->hasMany(InvoiceItem::class, 'product_id');
-    }
 }

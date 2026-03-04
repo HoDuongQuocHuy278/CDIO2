@@ -2,20 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Service extends Model
 {
-    use HasFactory;
+    protected $table = 'services';
 
     protected $fillable = [
         'ten_dich_vu',
+        'loai_dich_vu',
+        'gia_tien',
+        'thoi_han',
+        'so_buoi',
         'mo_ta',
+        'status',
     ];
-
-    public function packages()
-    {
-        return $this->hasMany(ServicePackage::class, 'service_id');
-    }
+    const NGUNG_BAN = 0;
+    const DANG_HOAT_DONG = 1;
 }

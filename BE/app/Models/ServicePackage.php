@@ -2,27 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ServicePackage extends Model
 {
-    use HasFactory;
+    protected $table = 'service_packages';
 
     protected $fillable = [
         'service_id',
-        'thoi_han_thang',
+        'ten_goi',
+        'thoi_han_ngay',
         'so_buoi_tap',
         'gia_tien',
     ];
-
-    public function service()
-    {
-        return $this->belongsTo(Service::class, 'service_id');
-    }
-
-    public function registrations()
-    {
-        return $this->hasMany(Registration::class, 'package_id');
-    }
 }

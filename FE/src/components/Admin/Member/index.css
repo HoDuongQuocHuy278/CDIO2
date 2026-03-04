@@ -1086,3 +1086,302 @@ body {
     color: var(--text-secondary);
     font-size: 1rem;
 }
+
+/* Thêm mới vào file CSS */
+.date-column {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.date-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+}
+
+.date-row i {
+    width: 16px;
+    text-align: center;
+}
+
+.date-row.start {
+    color: var(--secondary-text);
+    font-size: 0.8rem;
+}
+
+.date-row.end {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+/* --- STYLES CHO CẢNH BÁO BỎ TẬP --- */
+
+/* 1. Dòng nguy cơ cao (Bôi đỏ nền) */
+.risk-row {
+    background-color: rgba(254, 226, 226, 0.4) !important;
+    /* Đỏ nhạt */
+    border-left: 4px solid #ef4444;
+    /* Viền trái đỏ đậm */
+    transition: all 0.3s ease;
+}
+
+.risk-row:hover {
+    background-color: rgba(254, 226, 226, 0.7) !important;
+}
+
+/* 2. Container trong cột cảnh báo */
+.risk-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 3. Badges (Nhãn dán trạng thái) */
+.risk-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.risk-badge.danger {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.risk-badge.warning {
+    background-color: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+
+.risk-badge.safe {
+    background-color: #d1fae5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+}
+
+/* 4. Text số ngày vắng */
+.days-absent {
+    font-size: 11px;
+    color: #64748b;
+}
+
+/* 5. Nút Zalo (Chỉ hiện khi cần nhắc nhở) */
+.zalo-btn {
+    color: #0068ff;
+    background-color: rgba(0, 104, 255, 0.1);
+}
+
+.zalo-btn:hover {
+    background-color: #0068ff;
+    color: white;
+}
+
+/* 6. Hiệu ứng nhấp nháy cho Badge Nguy cơ */
+@keyframes pulse-red {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+.blink {
+    animation: pulse-red 2s infinite;
+}
+
+/* 7. Mini Status Badge ở tên */
+.mini-status {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mini-status.active {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.mini-status.expired {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.camera-box {
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    padding: 12px;
+    background: #f9fafb;
+}
+
+.face-preview {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 2px solid #4f46e5;
+}
+
+/* --- AI PROFILE VIEW (DETAIL MODAL) --- */
+.ai-profile-view {
+    padding: 1rem 0;
+}
+
+.ai-face-card {
+    background: #f8fafc;
+    border-radius: 20px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-soft);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.face-frame {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border: 3px solid var(--primary-color);
+    border-radius: 20px;
+    padding: 8px;
+    background: white;
+    overflow: hidden;
+}
+
+.face-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.scan-line-mini {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--primary-color);
+    box-shadow: 0 0 15px var(--primary-color);
+    animation: scan-loop-mini 3s linear infinite;
+    z-index: 10;
+}
+
+@keyframes scan-loop-mini {
+    0% {
+        top: 0;
+    }
+
+    50% {
+        top: 100%;
+    }
+
+    100% {
+        top: 0;
+    }
+}
+
+.face-id-badge {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.5px;
+}
+
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px dashed var(--border-soft);
+}
+
+.info-item .label {
+    font-size: 0.9rem;
+    color: var(--secondary-text);
+    font-weight: 500;
+}
+
+.info-item .value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.info-item .value.highlight {
+    color: var(--primary-color);
+    background: rgba(79, 70, 229, 0.05);
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+/* Enhancing existing action icons */
+.btn-icon.view {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+.btn-icon.view:hover {
+    background: #16a34a;
+    color: white;
+}
+
+/* --- PRICE SUMMARY BOX --- */
+.price-summary-box {
+    background: #f8faff;
+    border: 1px solid #e0e7ff;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.bg-light-purple {
+    background: #f5f3ff !important;
+    border-color: #ddd6fe !important;
+}
+
+.total-price-value {
+    color: var(--primary);
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+.text-primary {
+    color: var(--primary) !important;
+}
+
+.fs-4 {
+    font-size: 1.5rem !important;
+}

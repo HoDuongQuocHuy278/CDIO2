@@ -4,7 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
     {
-        path: '/admin/login',
+        path: '/',
         component: () => import('../components/Admin/Login/index.vue'),
     },
 
@@ -24,6 +24,10 @@ const routes = [
     },
 
     {
+        path: "/admin",
+        redirect: "/admin/dashboard",
+    },
+    {
         path: "/admin/dashboard",
         component: () => import("../components/Admin/Dashboard/index.vue"),
         meta: {
@@ -38,6 +42,71 @@ const routes = [
             layout: "AdminLayout",
         },
     },
+
+    {
+        path: "/admin/checkin",
+        component: () => import("../components/Admin/Checkin/index.vue"),
+        meta: {
+            layout: "AdminLayout",
+        },
+    },
+
+    {
+        path: "/admin/services",
+        component: () => import("../components/Admin/Service/index.vue"),
+        meta: {
+            layout: "AdminLayout",
+        },
+    },
+
+    {
+        path: "/admin/staff",
+        component: () => import("../components/Admin/Staff/index.vue"),
+        meta: {
+            layout: "AdminLayout",
+        },
+    },
+
+    {
+        path: "/admin/devices",
+        component: () => import("../components/Admin/Devices/index.vue"),
+        meta: {
+            layout: "AdminLayout",
+        },
+    },
+
+    {
+        path: "/admin/products",
+        component: () => import("../components/Admin/Product/index.vue"),
+        meta: {
+            layout: "AdminLayout",
+        },
+    },
+
+    {
+        path: "/admin/invoices",
+        component: () => import("../components/Admin/Invoices/index.vue"),
+        meta: {
+            layout: "AdminLayout",
+        },
+    },
+
+    {
+        path: "/admin/revenue",
+        component: () => import("../components/Admin/Revenue/index.vue"),
+        meta: {
+            layout: "AdminLayout",
+        },
+    },
+
+    {
+        path: "/admin/schedule",
+        component: () => import("../components/Admin/Schedule/index.vue"),
+        meta: {
+            layout: "AdminLayout",
+        },
+    },
+
 ];
 
 const router = createRouter({
@@ -46,6 +115,15 @@ const router = createRouter({
 });
 
 // Navigation guard
+import checkAdmin from './checkAdmin';
+
+router.beforeEach((to, from, next) => {
+    if (to.meta.layout === 'AdminLayout') {
+        checkAdmin(to, from, next);
+    } else {
+        next();
+    }
+});
 
 
 export default router;

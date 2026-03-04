@@ -1,229 +1,295 @@
 <template>
-    <div class="page-container">
-        <div class="content-wrapper">
-            <div class="header-section">
-                <div class="header-content">
-                    <h2 class="page-title">Quản lý thành viên</h2>
-                    <p class="page-subtitle">Quản lý hồ sơ, gói tập và trạng thái hội viên</p>
-                </div>
-
-                <div class="action-bar">
-                    <div class="search-wrapper">
-                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                        <input type="text" class="search-input" v-model="tim_kiem.noi_dung_tim_kiem"
-                            @keyup.enter="timKiem()" placeholder="Tìm kiếm thành viên...">
-                    </div>
-                    <button class="btn-action primary" data-bs-toggle="modal" data-bs-target="#addModal">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Thêm mới</span>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center mt-2 bg-transparent border-bottom-0">
+                    <h4 class="fw-bold text-primary mb-0">QUẢN LÝ THÀNH VIÊN</h4>
+                    <button class="btn btn-primary shadow-sm px-4" data-bs-toggle="modal" data-bs-target="#addModal">
+                        <i class="fa-solid fa-plus me-1"></i> Thêm Mới
                     </button>
                 </div>
-            </div>
-
-            <div class="table-card">
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th class="col-member">Thành viên</th>
-                            <th class="col-contact">Liên hệ</th>
-                            <th class="col-package">Gói đăng ký</th>
-                            <th class="col-status">Trạng thái</th>
-                            <th class="col-date">Hết hạn</th>
-                            <th class="col-action">Tác vụ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(member, index) in list_members" :key="index">
-                            <td>
-                                <div class="member-profile">
-                                    <div class="avatar" :class="getRandomColor(index)">
-                                        <img v-if="member.avatar" :src="member.avatar" alt="">
-                                        <span v-else>{{ getInitials(member.ho_ten) }}</span>
-                                    </div>
-                                    <div class="profile-info">
-                                        <span class="full-name">{{ member.ho_ten }}</span>
-                                        <span class="id-tag">ID: #{{ member.id }}</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="contact-group">
-                                    <div class="contact-row"><i class="fa-solid fa-phone"></i> {{ member.sdt }}</div>
-                                    <div class="contact-row secondary"><i class="fa-solid fa-envelope"></i> {{
-                                        member.email }}</div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="package-tag">
-                                    <i class="fa-solid fa-dumbbell"></i> {{ member.goi_dang_ky }}
-                                </div>
-                            </td>
-                            <td class="cell-center">
-                                <span class="status-badge" :class="getStatusClass(member.trang_thai)">
-                                    <span ></span> {{ member.trang_thai === 1 ? 'Đang tập' : 'Hết hạn' }}
-                                </span>
-                            </td>
-                            <td><span class="date-display">{{ member.ngay_het_han }}</span></td>
-                            <td class="cell-end">
-                                <div class="action-group">
-                                    <button class="btn-icon edit" @click="Object.assign(update_member, member)"
-                                        data-bs-toggle="modal" data-bs-target="#updateModal" title="Sửa">
-                                        <i class="fa-solid fa-pen"></i>
-                                    </button>
-                                    <button class="btn-icon delete" @click="Object.assign(delete_member, member)"
-                                        data-bs-toggle="modal" data-bs-target="#deleteModal" title="Xóa">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="pagination-area">
-                    <span class="pagination-info">Hiển thị <b>5</b> trên <b>128</b> kết quả</span>
-                    <div class="pagination-buttons">
-                        <button class="page-btn disabled"><i class="fa-solid fa-chevron-left"></i></button>
-                        <button class="page-btn active">1</button>
-                        <button class="page-btn">2</button>
-                        <button class="page-btn">3</button>
-                        <button class="page-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <input type="text" v-model="noi_dung_tim_kiem" @keyup.enter="loadData()" class="form-control" placeholder="Tìm kiếm thành viên...">
+                        <button class="btn btn-outline-secondary" @click="loadData()">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-light">
+                                <tr class="table-primary text-center">
+                                    <th>#</th>
+                                    <th>Họ Tên</th>
+                                    <th>Số Điện Thoại</th>
+                                    <th>Gói Tập</th>
+                                    <th>Thời Hạn</th>
+                                    <th>Số Buổi Tập/Tháng</th>
+                                    <th>Checkin Gần Nhất</th>
+                                    <th>Đã Chi (Tháng)</th>
+                                    <th>Trạng Thái</th>
+                                    <th>Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody v-if="!isLoading">
+                                <tr v-for="(v, k) in list_members" :key="v.id">
+                                    <td class="text-center align-middle">{{ k + 1 }}</td>
+                                    <td class="align-middle">
+                                        <div class="d-flex align-items-center">
+                                            <img :src="getFaceUrl(v.id)" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;" @error="$event.target.src='https://ui-avatars.com/api/?name='+v.full_name">
+                                            {{ v.full_name }}
+                                        </div>
+                                    </td>
+                                    <td class="text-center align-middle">{{ v.phone }}</td>
+                                    <td class="text-center align-middle">{{ v.package_name }}</td>
+                                    <td class="text-center align-middle">
+                                        <small>{{ v.start_date }}</small><br>
+                                        <small class="text-danger">{{ v.end_date }}</small>
+                                    </td>
+                                    <td class="text-center align-middle fw-bold text-primary">{{ v.monthly_checkins || 0 }} lần</td>
+                                    <td class="text-center align-middle"><small>{{ formatDate(v.last_checkin) }}</small></td>
+                                    <td class="text-end align-middle fw-bold text-success">{{ formatCurrency(v.monthly_spending || 0) }}</td>
+                                    <td class="text-center align-middle">
+                                        <span :class="v.status == 1 ? 'badge bg-success' : 'badge bg-danger'">
+                                            {{ v.status == 1 ? 'Đang Tập' : 'Hết Hạn' }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <button class="btn btn-info btn-sm me-1" @click="openView(v)" data-bs-toggle="modal" data-bs-target="#viewModal">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-warning btn-sm me-1" @click="openUpdate(v)" data-bs-toggle="modal" data-bs-target="#updateModal">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" @click="member_delete = v" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody v-else>
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status"></div>
+                                        <div class="mt-2">Đang tải dữ liệu...</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal Thêm Mới -->
     <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content modern-modal">
-                <div class="modal-header-custom primary-header">
-                    <h5 class="modal-title-custom"><i class="fa-solid fa-user-plus me-2"></i>Thêm Thành Viên</h5>
-                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal"><i
-                            class="fa-solid fa-xmark"></i></button>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm Mới Thành Viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body-custom">
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <label class="input-label">Họ và Tên <span class="req">*</span></label>
-                            <input v-model="create_member.ho_ten" type="text" class="input-field"
-                                placeholder="Nhập họ tên..." />
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Họ Tên</label>
+                            <input v-model="create_member.full_name" type="text" class="form-control" placeholder="Nhập họ tên">
                         </div>
-                        <div class="col-md-6">
-                            <label class="input-label">Số điện thoại <span class="req">*</span></label>
-                            <input v-model="create_member.sdt" type="text" class="input-field"
-                                placeholder="Nhập SĐT..." />
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Số Điện Thoại</label>
+                            <input v-model="create_member.phone" type="text" class="form-control" placeholder="Nhập số điện thoại">
                         </div>
-                        <div class="col-md-6">
-                            <label class="input-label">Email</label>
-                            <input v-model="create_member.email" type="email" class="input-field"
-                                placeholder="example@gmail.com" />
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input v-model="create_member.email" type="email" class="form-control" placeholder="Nhập email">
                         </div>
-                        <div class="col-md-6">
-                            <label class="input-label">Gói Đăng Ký</label>
-                            <select v-model="create_member.goi_dang_ky" class="input-field select-field">
-                                <option value="" disabled selected>Chọn gói tập...</option>
-                                <option value="Premium 6 Tháng">Premium 6 Tháng</option>
-                                <option value="Standard 1 Tháng">Standard 1 Tháng</option>
-                                <option value="VIP 12 Tháng">VIP 12 Tháng</option>
-                                <option value="Yoga Basic">Yoga Basic</option>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Gói Tập</label>
+                            <select v-model="create_member.package_id" class="form-select" @change="onPackageChange('create')">
+                                <option v-for="pkg in list_packages" :key="pkg.id" :value="pkg.id">{{ pkg.ten_dich_vu }}</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="input-label">Ngày Hết Hạn</label>
-                            <input v-model="create_member.ngay_het_han" type="date" class="input-field" />
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Giá Gói Tập</label>
+                            <input :value="create_package_price ? formatCurrency(create_package_price) : ''" type="text" class="form-control text-danger fw-bold bg-light" disabled placeholder="Chọn gói để xem giá">
                         </div>
-                        <div class="col-md-6">
-                            <label class="input-label">Trạng Thái</label>
-                            <select v-model.number="create_member.trang_thai" class="input-field select-field">
-                                <option :value="1">Đang tập (Active)</option>
-                                <option :value="0">Đã hết hạn/Dừng</option>
-                            </select>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ngày Bắt Đầu</label>
+                            <input v-model="create_member.start_date" type="date" class="form-control">
+                        </div>
+                        <div class="col-md-12 mb-3 text-center">
+                            <label class="form-label">Ảnh Khuôn Mặt (Check-in Camera)</label>
+                            <div class="d-flex justify-content-center">
+                                <WebcamUI ref="webcamUI" @photoTaken="onPhotoTaken" />
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer-custom">
-                    <button type="button" class="btn-action secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button @click="ThemMoiThanhVien()" type="button" class="btn-action primary"
-                        data-bs-dismiss="modal">
-                        <i class="fa-solid fa-floppy-disk me-1"></i> Lưu Hồ Sơ
-                    </button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" @click="themMoi()" class="btn btn-primary" :disabled="isSaving">Lưu Lại</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal Cập Nhật -->
     <div class="modal fade" id="updateModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content modern-modal">
-                <div class="modal-header-custom primary-header">
-                    <h5 class="modal-title-custom"><i class="fa-solid fa-pen-to-square me-2"></i>Cập Nhật Thông Tin</h5>
-                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal"><i
-                            class="fa-solid fa-xmark"></i></button>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cập Nhật Thành Viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body-custom">
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <label class="input-label">Họ và tên</label>
-                            <input v-model="update_member.ho_ten" type="text" class="input-field" />
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Họ Tên</label>
+                            <input v-model="member_update.full_name" type="text" class="form-control">
                         </div>
-                        <div class="col-md-6">
-                            <label class="input-label">Số điện thoại</label>
-                            <input v-model="update_member.sdt" type="text" class="input-field" />
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Số Điện Thoại</label>
+                            <input v-model="member_update.phone" type="text" class="form-control">
                         </div>
-                        <div class="col-md-6">
-                            <label class="input-label">Email</label>
-                            <input v-model="update_member.email" type="email" class="input-field" />
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input v-model="member_update.email" type="email" class="form-control">
                         </div>
-                        <div class="col-md-6">
-                            <label class="input-label">Gói đăng ký</label>
-                            <select v-model="update_member.goi_dang_ky" class="input-field select-field">
-                                <option value="Premium 6 Tháng">Premium 6 Tháng</option>
-                                <option value="Standard 1 Tháng">Standard 1 Tháng</option>
-                                <option value="VIP 12 Tháng">VIP 12 Tháng</option>
-                                <option value="Yoga Basic">Yoga Basic</option>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Trạng Thái</label>
+                            <select v-model="member_update.status" class="form-select">
+                                <option :value="1">Đang Tập</option>
+                            <option :value="0">Hết Hạn</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="input-label">Ngày hết hạn</label>
-                            <input v-model="update_member.ngay_het_han" type="text" class="input-field" />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="input-label">Trạng Thái</label>
-                            <select v-model.number="update_member.trang_thai" class="input-field select-field">
-                                <option :value="1">Đang tập</option>
-                                <option :value="0">Hết hạn</option>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Gói Tập</label>
+                            <select v-model="member_update.package_id" class="form-select" @change="onPackageChange('update')">
+                                <option v-for="pkg in list_packages" :key="pkg.id" :value="pkg.id">{{ pkg.ten_dich_vu }}</option>
                             </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Giá Gói Tập</label>
+                            <input :value="update_package_price ? formatCurrency(update_package_price) : ''" type="text" class="form-control text-danger fw-bold bg-light" disabled placeholder="Chọn gói để xem giá">
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer-custom">
-                    <button type="button" class="btn-action secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button v-on:click="CapNhatThanhVien()" type="button" class="btn-action primary"
-                        data-bs-dismiss="modal">
-                        <i class="fa-solid fa-check me-1"></i> Cập Nhật
-                    </button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" @click="capNhat()" class="btn btn-warning" :disabled="isSaving">Cập Nhật</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal Xóa -->
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content modern-modal">
-                <div class="modal-body-custom text-center-content">
-                    <div class="icon-circle danger-icon">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </div>
-                    <h4 class="confirm-title">Xác nhận xóa?</h4>
-                    <p class="confirm-desc">Thành viên <strong>{{ delete_member.ho_ten }}</strong> sẽ bị xóa vĩnh viễn
-                        khỏi hệ thống.</p>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác Nhận Xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn xóa thành viên <b>{{ member_delete.full_name }}</b> không?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" @click="xoa()" class="btn btn-danger" :disabled="isSaving">Xác Nhận Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    <div class="confirm-actions">
-                        <button type="button" class="btn-action secondary" data-bs-dismiss="modal">Hủy bỏ</button>
-                        <button v-on:click="xoaThanhVien()" type="button" class="btn-action danger"
-                            data-bs-dismiss="modal">Xóa thành viên</button>
+    <!-- Modal Chi Tiết Thành Viên (existing) -->
+    <div class="modal fade" id="viewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi Tiết Thành Viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <img :src="getFaceUrl(member_detail.id)" class="rounded shadow" style="width: 200px; height: 200px; object-fit: cover;" @error="$event.target.src='https://ui-avatars.com/api/?name='+member_detail.full_name">
                     </div>
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th>Họ Tên</th>
+                                <td>{{ member_detail.full_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Số Điện Thoại</th>
+                                <td>{{ member_detail.phone }}</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td>{{ member_detail.email || 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Gói Tập</th>
+                                <td>{{ member_detail.package_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Ngày Hết Hạn</th>
+                                <td class="text-danger fw-bold">{{ member_detail.end_date }}</td>
+                            </tr>
+                            <tr>
+                                <th>Tổng Số Tháng Đã Tập</th>
+                                <td class="text-primary fw-bold">{{ calculateMonths(member_detail.start_date) }} tháng</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal In Hóa Đơn -->
+    <div class="modal fade" id="receiptModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content overflow-hidden border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white py-4 text-center d-block">
+                    <h4 class="fw-bold mb-1">WELLFIT GYM</h4>
+                    <p class="small mb-0 opacity-75 text-uppercase">Hóa Đơn Thanh Toán</p>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="text-center mb-4">
+                        <div class="display-6 fw-bold text-dark mb-1">{{ formatCurrency(new_invoice?.amount || 0) }}</div>
+                        <span class="badge bg-success text-white px-3">Đã thanh toán</span>
+                    </div>
+                    
+                    <div class="border-top border-bottom py-3 mb-4">
+                        <div class="d-flex justify-content-between mb-2 small">
+                            <span class="text-muted">Mã hóa đơn</span>
+                            <span class="fw-bold text-dark">{{ new_invoice?.code }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 small">
+                            <span class="text-muted">Ngày lập</span>
+                            <span class="fw-bold text-dark">{{ new_invoice?.date }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 small">
+                            <span class="text-muted">Khách hàng</span>
+                            <span class="fw-bold text-dark">{{ new_invoice?.customer }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between small">
+                            <span class="text-muted">Thanh toán</span>
+                            <span class="fw-bold text-dark">{{ new_invoice?.method }}</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info border-0 py-2 px-3 small">
+                        <i class="fa-solid fa-info-circle me-1"></i> Cảm ơn bạn đã tin tưởng dịch vụ của chúng tôi!
+                    </div>
+                </div>
+                <div class="modal-footer bg-white border-0 py-3 d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-light px-4 btn-sm" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" @click="printInvoice()" class="btn btn-primary px-4 btn-sm"><i class="fa-solid fa-print me-1"></i> In HĐ</button>
                 </div>
             </div>
         </div>
@@ -231,52 +297,200 @@
 </template>
 
 <script>
-import './index.css';
+import axios from '../../../axios';
+import WebcamUI from '../../Webcam/WebCamUI.vue';
 
 export default {
+    components: { WebcamUI },
     data() {
         return {
-            list_members: [
-                { id: 101, ho_ten: 'Nguyễn Văn An', sdt: '0901234567', email: 'an.nguyen@gmail.com', avatar: '', goi_dang_ky: 'Premium 6 Tháng', trang_thai: 1, ngay_het_han: '15/07/2026' },
-                { id: 102, ho_ten: 'Trần Thị Bình', sdt: '0912345678', email: 'binh.tran@gmail.com', avatar: '', goi_dang_ky: 'Standard 1 Tháng', trang_thai: 1, ngay_het_han: '01/05/2026' },
-                { id: 103, ho_ten: 'Lê Hoàng Cường', sdt: '0988777666', email: 'cuong.gym@hotmail.com', avatar: '', goi_dang_ky: 'VIP 12 Tháng', trang_thai: 0, ngay_het_han: '20/01/2026' },
-            ],
-            create_member: { 
-                ho_ten: '', 
-                sdt: '', 
-                email: '', 
-                goi_dang_ky: '', 
-                ngay_het_han: '', 
-                trang_thai: 1 },
-            update_member: {},
-            delete_member: {},
-            tim_kiem: { 
-                noi_dung_tim_kiem: "" 
+            list_members: [],
+            list_packages: [],
+            create_member: {
+                full_name: '',
+                phone: '',
+                email: '',
+                thoi_han: 1,
+                start_date: new Date().toISOString().split('T')[0],
+                package_id: null,
+                face_image: null
             },
+            member_update: {},
+            member_delete: {},
+            member_detail: {},
+            new_invoice: null,
+            noi_dung_tim_kiem: '',
+            isLoading: false,
+            isSaving: false,
+            lastReload: new Date().getTime()
         }
     },
+    computed: {
+        create_package_price() {
+            const pkg = this.list_packages.find(p => p.id === this.create_member.package_id);
+            return pkg ? pkg.gia_tien : 0;
+        },
+        update_package_price() {
+            const pkg = this.list_packages.find(p => p.id === this.member_update.package_id);
+            return pkg ? pkg.gia_tien : 0;
+        }
+    },
+    mounted() {
+        this.loadData();
+        this.loadPackages();
+    },
     methods: {
-        // Lấy chữ cái đầu tên khi không có avatar đại diện thành viên 
-        getInitials(name) { return name ? name.split(' ').pop().charAt(0).toUpperCase() : ''; },
-        // Lấy màu nền ngẫu nhiên cho avatar khi không có ảnh đại diện
-        getRandomColor(index) {
-            const colors = ['bg-gradient-blue', 'bg-gradient-purple', 'bg-gradient-green', 'bg-gradient-orange'];
-            return colors[index % colors.length];
+        loadData() {
+            this.isLoading = true;
+            this.lastReload = new Date().getTime();
+            axios.get('admin/thanh-vien/get-data', {
+                params: { query: this.noi_dung_tim_kiem }
+            })
+                .then((res) => {
+                    this.list_members = res.data.data.data || res.data.data;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
-        // Lấy lớp trạng thái khi hiển thị trạng thái hội viên 
-        getStatusClass(status) { return status === 1 ? 'status-active' : 'status-expired'; },
-
-        ThemMoiThanhVien() {
-            const newId = Math.floor(Math.random() * 1000) + 100;
-            const newMember = { ...this.create_member, id: newId, avatar: '' };
-            this.list_members.unshift(newMember);
-            this.create_member = { ho_ten: '', sdt: '', email: '', goi_dang_ky: '', ngay_het_han: '', trang_thai: 1 };
+        loadPackages() {
+            axios.get('admin/thanh-vien/get-packages')
+                .then((res) => {
+                    this.list_packages = res.data.data;
+                });
         },
-        CapNhatThanhVien() { alert(`Đã cập nhật: ${this.update_member.ho_ten}`); },
-        xoaThanhVien() {
-            this.list_members = this.list_members.filter(m => m.id !== this.delete_member.id);
+        themMoi() {
+            if (this.isSaving) return;
+            if (!this.create_member.face_image) {
+                this.$toast.warning("Vui lòng chụp ảnh khuôn mặt để check-in!");
+                return;
+            }
+            if (!this.create_member.package_id) {
+                this.$toast.warning("Vui lòng chọn gói tập!");
+                return;
+            }
+            this.isSaving = true;
+            axios.post('admin/thanh-vien/add-data', this.create_member)
+                .then((res) => {
+                    if (res.data.status) {
+                        this.$toast.success(res.data.message);
+                        this.loadData();
+                        this.new_invoice = res.data.invoice;
+                        this.create_member = { 
+                            full_name: '',
+                            phone: '',
+                            email: '',
+                            thoi_han: 1, 
+                            start_date: new Date().toISOString().split('T')[0], 
+                            face_image: null 
+                        };
+                        if (this.$refs.webcamUI) {
+                            this.$refs.webcamUI.retakePhoto();
+                        }
+                        bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
+                        
+                        if (this.new_invoice) {
+                            setTimeout(() => {
+                                const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
+                                receiptModal.show();
+                            }, 500);
+                        }
+                    } else {
+                        this.$toast.error(res.data.message);
+                    }
+                })
+                .catch((err) => {
+                    const message = err.response?.data?.message || "Lỗi khi thêm thành viên!";
+                    this.$toast.error(message);
+                    if (err.response?.data?.errors) {
+                        const errors = err.response.data.errors;
+                        Object.keys(errors).forEach(key => {
+                            this.$toast.error(errors[key][0]);
+                        });
+                    }
+                })
+                .finally(() => {
+                    this.isSaving = false;
+                });
         },
-        timKiem() { alert(`Tìm kiếm: ${this.tim_kiem.noi_dung_tim_kiem}`); }
+        printInvoice() {
+            window.print();
+        },
+        onPhotoTaken(data) {
+            this.create_member.face_image = data.image_data_url;
+        },
+        openUpdate(v) {
+            this.member_update = { ...v, thoi_han: v.package_duration || 1 };
+        },
+        onPackageChange(type) {
+            if (type === 'create') {
+                const pkg = this.list_packages.find(p => p.id === this.create_member.package_id);
+                if (pkg) this.create_member.thoi_han = pkg.thoi_han;
+            } else if (type === 'update') {
+                const pkg = this.list_packages.find(p => p.id === this.member_update.package_id);
+                if (pkg) this.member_update.thoi_han = pkg.thoi_han;
+            }
+        },
+        capNhat() {
+            if (this.isSaving) return;
+            this.isSaving = true;
+            axios.post('admin/thanh-vien/update', this.member_update)
+                .then((res) => {
+                    if (res.data.status) {
+                        this.$toast.success(res.data.message);
+                        this.loadData();
+                        bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
+                    } else {
+                        this.$toast.error(res.data.message);
+                    }
+                })
+                .finally(() => {
+                    this.isSaving = false;
+                });
+        },
+        xoa() {
+            this.isSaving = true;
+            axios.post('admin/thanh-vien/destroy', this.member_delete)
+                .then((res) => {
+                    if (res.data.status) {
+                        this.$toast.success(res.data.message);
+                        this.loadData();
+                        bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+                    } else {
+                        this.$toast.error(res.data.message);
+                    }
+                })
+                .finally(() => {
+                    this.isSaving = false;
+                });
+        },
+        openView(v) {
+            this.member_detail = { ...v };
+        },
+        getFaceUrl(id) {
+            if (!id) return '';
+            // Only add timestamp if we have a valid lastReload (meaning logic has run at least once)
+            const ts = this.lastReload || '';
+            return `http://127.0.0.1:8000/storage/member_faces/${id}.jpg?t=` + ts;
+        },
+        calculateMonths(startDate) {
+            if (!startDate) return 0;
+            const start = new Date(startDate);
+            const now = new Date();
+            const diffTime = now - start;
+            if (diffTime < 0) return 0;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return Math.round(diffDays / 30);
+        },
+        formatDate(date) {
+            if (!date) return 'Chưa có';
+            return new Date(date).toLocaleString('vi-VN');
+        },
+        formatCurrency(value) {
+            if (!value) return "0 đ";
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+        }
     }
 }
 </script>
+<style></style>
